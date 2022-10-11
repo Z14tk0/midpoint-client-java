@@ -24,6 +24,11 @@ import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author semancik
  * @author katkav
@@ -39,12 +44,18 @@ public class RestJaxbObjectAddService<O extends ObjectType> extends AbstractObje
 	}
 
 	@Override
-	public TaskFuture<ObjectReference<O>> apost() throws ObjectAlreadyExistsException, ObjectNotFoundException {
+	public TaskFuture<ObjectReference<O>> apost(List<String> options) throws ObjectAlreadyExistsException, ObjectNotFoundException {
 		// TODO: item object
+
+        Map<String, List<String>> queryParams = null;
+        if (options != null && !options.isEmpty()) {
+            queryParams = new HashMap<>();
+            queryParams.put("options", options);
+        }
 
 		// if object created (sync):
 		String restPath = Types.findType(getType()).getRestPath();
-		Response response = getService().post(restPath, object, null); //TODO parameters
+		Response response = getService().post(restPath, object, queryParams); //TODO parameters
 
 		switch(response.getStatus()) {
 			case 409:

@@ -26,6 +26,8 @@ import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
+import java.util.List;
+
 /**
  * @author jakmor
  */
@@ -40,7 +42,7 @@ public class RestJaxbPolicyGenerateService<O extends ObjectType> extends Abstrac
 
 
     @Override
-    public TaskFuture<PolicyItemsDefinitionType> apost() throws ObjectNotFoundException {
+    public TaskFuture<PolicyItemsDefinitionType> apost(List<String> options) throws ObjectNotFoundException {
         String oid = getOid();
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);
         restPath += "/generate";

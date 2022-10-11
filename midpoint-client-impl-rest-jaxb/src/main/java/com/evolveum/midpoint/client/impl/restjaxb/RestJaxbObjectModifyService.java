@@ -16,6 +16,7 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,10 +94,16 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
     }
 
     @Override
-    public TaskFuture<ObjectReference<O>> apost() throws ObjectNotFoundException {
+    public TaskFuture<ObjectReference<O>> apost(List<String> options) throws ObjectNotFoundException {
+
+        Map<String, List<String>> queryParams = null;
+        if (options != null && !options.isEmpty()) {
+            queryParams = new HashMap<>();
+            queryParams.put("options", options);
+        }
 
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid());
-        Response response = getService().post(restPath, RestUtil.buildModifyObject(modifications), null); //TODO params
+        Response response = getService().post(restPath, RestUtil.buildModifyObject(modifications), queryParams); //TODO params
 
         switch (response.getStatus()) {
             case 204:

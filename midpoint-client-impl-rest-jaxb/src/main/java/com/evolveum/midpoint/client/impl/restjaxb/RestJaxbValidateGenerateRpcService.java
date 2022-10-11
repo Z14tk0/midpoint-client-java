@@ -25,6 +25,8 @@ import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
+import java.util.List;
+
 /**
  *
  * @author katkav
@@ -50,7 +52,7 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 	}
 
 	@Override
-	public TaskFuture<PolicyItemsDefinitionType> apost() throws CommonException {
+	public TaskFuture<PolicyItemsDefinitionType> apost(List<String> options) throws CommonException {
 
 		Response response = service.post(path, policyItemDefinition);
 

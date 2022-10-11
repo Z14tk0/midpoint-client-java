@@ -50,7 +50,7 @@ public class TestResourceIntegration extends AbstractTest {
 
     @Test
     public void test100testResource() throws Exception {
-        OperationResultType status = service.resources().oid(RESOURCE_OID).test().post();
+        OperationResultType status = service.resources().oid(RESOURCE_OID).test().post(null);
         assertEquals("Expected that resource connection is successfull", status.getStatus(), OperationResultStatusType.SUCCESS);
         //TODO check subresults
     }
@@ -62,7 +62,7 @@ public class TestResourceIntegration extends AbstractTest {
                 .oid(RESOURCE_OID)
                 .importFromResource()
                 .objectClass(ACCOUNT_OBJECT_CLASS)
-                .post();
+                .post(null);
 
         taskOid = importTask.getOid();
         TaskType task = service.tasks().oid(taskOid).get();

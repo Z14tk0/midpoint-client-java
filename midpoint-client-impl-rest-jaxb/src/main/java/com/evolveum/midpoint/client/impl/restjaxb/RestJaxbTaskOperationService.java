@@ -23,6 +23,8 @@ import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 
+import java.util.List;
+
 public class RestJaxbTaskOperationService implements TaskOperationService {
 
     private RestJaxbService service;
@@ -36,7 +38,7 @@ public class RestJaxbTaskOperationService implements TaskOperationService {
     }
 
     @Override
-    public TaskFuture<ObjectReference<TaskType>> apost() throws CommonException {
+    public TaskFuture<ObjectReference<TaskType>> apost(List<String> options) throws CommonException {
 
         String restPath = RestUtil.subUrl(Types.findType(TaskType.class).getRestPath(), oid, path);
         Response response = service.post(restPath, null);

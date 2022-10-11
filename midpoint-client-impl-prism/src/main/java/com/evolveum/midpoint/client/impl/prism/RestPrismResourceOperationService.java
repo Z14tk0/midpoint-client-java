@@ -15,6 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.prism;
 
+import java.util.List;
 import java.util.function.Function;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -38,7 +39,7 @@ public class RestPrismResourceOperationService<T> implements ResourceOperationSe
 
 
     @Override
-    public TaskFuture<T> apost() throws CommonException {
+    public TaskFuture<T> apost(List<String> options) throws CommonException {
         CloseableHttpResponse response = service.httpPost(path, null);
         T parsedResponse = responseHandler.apply(response);
         return new RestPrismCompletedFuture<>(parsedResponse);

@@ -22,6 +22,8 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResp
 import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 
+import java.util.List;
+
 /**
  *
  * @author katkav
@@ -64,7 +66,7 @@ public class RestJaxbRpcService<T> implements RpcService<T> {
     }
 
 	@Override
-	public TaskFuture<T> apost() throws CommonException {
+	public TaskFuture<T> apost(List<String> options) throws CommonException {
 		// TODO Auto-generated method stub
 		return null;
 	}

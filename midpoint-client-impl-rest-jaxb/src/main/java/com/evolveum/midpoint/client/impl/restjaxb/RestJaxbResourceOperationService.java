@@ -15,6 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import java.util.List;
 import java.util.function.Function;
 import javax.ws.rs.core.Response;
 
@@ -36,7 +37,7 @@ public class RestJaxbResourceOperationService<T> implements ResourceOperationSer
     }
 
     @Override
-    public TaskFuture<T> apost() throws CommonException {
+    public TaskFuture<T> apost(List<String> options) throws CommonException {
 
         Response response = service.post(path, null);
 

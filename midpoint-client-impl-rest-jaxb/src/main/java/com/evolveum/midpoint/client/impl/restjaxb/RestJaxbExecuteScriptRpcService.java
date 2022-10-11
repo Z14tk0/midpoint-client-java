@@ -51,7 +51,7 @@ public class RestJaxbExecuteScriptRpcService<T> implements ExecuteScriptRpcServi
 	}
 
 	@Override
-	public TaskFuture<T> apost() throws CommonException {
+	public TaskFuture<T> apost(List<String> options) throws CommonException {
 
 		Map<String, List<String>> queryParams = null;
 		if (asynchronous) {

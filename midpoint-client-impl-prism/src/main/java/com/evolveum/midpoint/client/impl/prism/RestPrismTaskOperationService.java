@@ -23,6 +23,8 @@ import com.evolveum.midpoint.client.api.TaskOperationService;
 import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 
+import java.util.List;
+
 public class RestPrismTaskOperationService implements TaskOperationService {
 
     private final String oid;
@@ -36,7 +38,7 @@ public class RestPrismTaskOperationService implements TaskOperationService {
     }
 
     @Override
-    public TaskFuture<ObjectReference<TaskType>> apost() throws CommonException {
+    public TaskFuture<ObjectReference<TaskType>> apost(List<String> options) throws CommonException {
 
         String fullPath = "/tasks/" + oid + "/" + path;
         HttpResponse response = service.httpPost(fullPath, null);

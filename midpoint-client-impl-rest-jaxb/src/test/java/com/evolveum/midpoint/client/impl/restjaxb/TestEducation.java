@@ -72,7 +72,7 @@ public class TestEducation extends AbstractTest {
                 .path("givenName")
                 .execute()
                 .build()
-                .post();
+                .post(null);
 
         assertEquals(1, policyItemsDefinition.getPolicyItemDefinition().size());
         PolicyItemDefinitionType policyitemDefinition = policyItemsDefinition.getPolicyItemDefinition().iterator().next();
@@ -92,7 +92,7 @@ public class TestEducation extends AbstractTest {
                 .item()
                 .policy("00000000-0000-0000-0000-000000000003")
                 .build()
-                .post();
+                .post(null);
         assertEquals(1, policyItemsDefinition.getPolicyItemDefinition().size());
         PolicyItemDefinitionType policyitemDefinition = policyItemsDefinition.getPolicyItemDefinition().iterator().next();
         assertNotNull(policyitemDefinition.getValue());
@@ -110,7 +110,7 @@ public class TestEducation extends AbstractTest {
                     .path("credentials/password/value")
                     .value("asd123")
                     .build()
-                    .post();
+                    .post(null);
             AssertJUnit.fail("Expected Policy violation exception, but didn't get one");
         } catch (PolicyViolationException e) {
             //this is expected
@@ -127,7 +127,7 @@ public class TestEducation extends AbstractTest {
                 .path("credentials/password/value")
                 .value("asdASD123*")
                 .build()
-                .post();
+                .post(null);
 
     }
 
@@ -140,7 +140,7 @@ public class TestEducation extends AbstractTest {
                 .policy("00000000-0000-0000-0000-p00000000001")
                 .path("name")
                 .build()
-                .post();
+                .post(null);
     }
 
     @Test
@@ -155,7 +155,7 @@ public class TestEducation extends AbstractTest {
 
         // WHEN
         try{
-            service.users().oid("1bae776f-4939-4071-92e2-8efd5bd57799").credential().executeResetPassword(executeCredentialResetRequest).post();
+            service.users().oid("1bae776f-4939-4071-92e2-8efd5bd57799").credential().executeResetPassword(executeCredentialResetRequest).post(null);
         }catch(ObjectNotFoundException e){
             fail("Cannot delete user, user not found");
         }

@@ -24,6 +24,7 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredential
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  *
@@ -48,7 +49,7 @@ public class RestJaxbFocusCredentialService<O extends ObjectType>  extends Abstr
     }
 
     @Override
-    public TaskFuture<ExecuteCredentialResetResponseType> apost() throws CommonException
+    public TaskFuture<ExecuteCredentialResetResponseType> apost(List<String> options) throws CommonException
     {
 
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid()).concat("/credential");
