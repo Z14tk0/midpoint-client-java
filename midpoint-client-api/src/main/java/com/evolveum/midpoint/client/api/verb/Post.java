@@ -30,7 +30,7 @@ public interface Post<T> {
 	/**
 	 * Synchronous POST.
 	 */
-	default T post(List<String> options) throws OperationInProgressException, CommonException {
+	default T post(List<String> options) throws CommonException {
 
 		TaskFuture<T> future = apost(options);
 
