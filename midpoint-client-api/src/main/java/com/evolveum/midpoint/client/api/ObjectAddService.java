@@ -24,4 +24,9 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
  */
 public interface ObjectAddService<O extends ObjectType> extends Post<ObjectReference<O>> {
 
+    ObjectAddService<O> addOption(String value);
+
+    default ObjectAddService<O> overwrite() {
+        return addOption("overwrite");
+    }
 }

@@ -151,7 +151,7 @@ public class DomSerializer {
 			normElement.setTextContent(norm);
 			value.appendChild(normElement);
 		}
-
+        equal.appendChild(value);
 		return equal;
 	}
 

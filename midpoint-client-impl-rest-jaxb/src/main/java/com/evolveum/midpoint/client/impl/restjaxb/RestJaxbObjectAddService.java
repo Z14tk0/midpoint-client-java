@@ -15,13 +15,17 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import javax.ws.rs.BadRequestException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.ObjectAddService;
 import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.TaskFuture;
-import com.evolveum.midpoint.client.api.exception.*;
+import com.evolveum.midpoint.client.api.exception.ObjectAlreadyExistsException;
+import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.SystemException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
 /**
@@ -32,33 +36,41 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 public class RestJaxbObjectAddService<O extends ObjectType> extends AbstractObjectTypeWebResource<O> implements ObjectAddService<O> {
 
 	private final O object;
+    private final List<String> options = new ArrayList<>();
 
 	public RestJaxbObjectAddService(final RestJaxbService service, final Class<O> type, final O object) {
 		super(service, type);
 		this.object = object;
 	}
 
-	@Override
+    @Override
+    public RestJaxbObjectAddService<O> addOption(String value) {
+        options.add(value);
+        return this;
+    }
+
+    @Override
 	public TaskFuture<ObjectReference<O>> apost() throws ObjectAlreadyExistsException, ObjectNotFoundException {
 		// TODO: item object
 
 		// if object created (sync):
 		String restPath = Types.findType(getType()).getRestPath();
-		Response response = getService().post(restPath, object, null); //TODO parameters
+        Response response = getService().post(restPath, object, Map.of("options", options));
 
 		switch(response.getStatus()) {
 			case 409:
 				throw new ObjectAlreadyExistsException(response.getStatusInfo().getReasonPhrase());
+			case 500:
+				throw new SystemException(response.getStatusInfo().getReasonPhrase());
 			case 201:
 			case 202:
+            case 240: // handled error
+            case 250: // partial error (TODO should be handled in this way?)
 				String oid = RestUtil.getOidFromLocation(response, restPath);
 				RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), oid);
 				return new RestJaxbCompletedFuture<>(ref);
 			default:
-				throw new UnsupportedOperationException("Implement other status codes, unsupported return status: " + response.getStatus());
+                throw new UnsupportedOperationException("Implement other status codes, unsupported return status: " + response.getStatus());
 		}
-
 	}
-
-
 }

@@ -17,6 +17,9 @@ import javax.xml.namespace.QName;
 import com.evolveum.midpoint.client.api.AuthenticationChallenge;
 import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.SchemaException;
+import com.evolveum.midpoint.client.api.query.AtomicFilterExit;
+import com.evolveum.midpoint.client.api.query.ConditionEntry;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 import org.apache.commons.lang3.StringUtils;
@@ -109,7 +112,6 @@ public class TestIntegrationBasic extends AbstractTest {
         assertNull(credentialsPolicyType.getSecurityQuestions());
         assertNull(credentialsPolicyType.getDefault());
         assertEquals(0, credentialsPolicyType.getNonce().size(), "No nonce configuration expected");
-
     }
 
     private Duration createDuration(String lexicalRepresentation) throws DatatypeConfigurationException {
@@ -361,7 +363,7 @@ public class TestIntegrationBasic extends AbstractTest {
     /**
      * Test for MID-7459, import attached objects from Jira issue before test run
      */
-    @Test
+    @Test(enabled = false) // enable after the midPoint is set up appropriately
     public void test600searchDistinct() throws Exception {
         Service service2 = getService("pavol", "western", ENDPOINT_ADDRESS);
         SearchResult<UserType> users = service2.users().search().queryFor(UserType.class)
@@ -558,6 +560,59 @@ public class TestIntegrationBasic extends AbstractTest {
 
         //TODO how to clear the env properly?
         service.securityPolicies().oid(SECURITY_POLICY_OID).delete();
+    }
+
+    @Test
+    public void test770SearchEqPoly() throws SchemaException, ObjectNotFoundException {
+        assertFound(searchSystemConfigurationByName().eq("SystemConfiguration"));
+        assertNotFound(searchSystemConfigurationByName().eq("systemconfiguration"));
+
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration"));
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1"));
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration"));
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration").matchingStrict());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1").matchingStrict());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration").matchingStrict());
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration").matchingOrig());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1").matchingOrig());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration").matchingOrig());
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration").matchingNorm());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1").matchingNorm());
+        assertFound(searchSystemConfigurationByName().eqPoly("systemconfiguration").matchingNorm());
+
+        // MidPoint recomputes the "norm" value, so its value does not matter in any way.
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration", "xxx"));
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1", "xxx"));
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration", "xxx"));
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration", "xxx").matchingStrict());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1", "xxx").matchingStrict());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration", "xxx").matchingStrict());
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration", "xxx").matchingOrig());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1", "xxx").matchingOrig());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration", "xxx").matchingOrig());
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration", "xxx").matchingNorm());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1", "xxx").matchingNorm());
+        assertFound(searchSystemConfigurationByName().eqPoly("systemconfiguration", "xxx").matchingNorm());
+    }
+
+    private void assertFound(AtomicFilterExit<SystemConfigurationType> entry) throws SchemaException, ObjectNotFoundException {
+        SearchResult<SystemConfigurationType> result = entry.get();
+        assertEquals(result.size(), 1);
+        assertEquals(service.util().getOrig(result.get(0).getName()), "SystemConfiguration");
+    }
+
+    private void assertNotFound(AtomicFilterExit<SystemConfigurationType> entry) throws SchemaException, ObjectNotFoundException {
+        SearchResult<SystemConfigurationType> result = entry.get();
+        assertEquals(result.size(), 0);
+    }
+
+    private ConditionEntry<SystemConfigurationType> searchSystemConfigurationByName() {
+        var name = new ItemPathType();
+        name.setValue("name");
+
+        return service.systemConfigurations().search()
+                .queryFor(SystemConfigurationType.class)
+                .item(name);
     }
 
     private ItemPathType createAssignmentTargetRefPath() {

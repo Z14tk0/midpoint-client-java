@@ -23,6 +23,7 @@ import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RestPrismObjectAddService<O extends ObjectType> implements ObjectAddService<O> {
@@ -30,7 +31,7 @@ public class RestPrismObjectAddService<O extends ObjectType> implements ObjectAd
     private RestPrismService service;
     private ObjectTypes type;
     private O object;
-    private List options;
+    private List<String> options;
 
     public RestPrismObjectAddService(RestPrismService service, ObjectTypes type, O object) {
         this.service = service;
@@ -38,8 +39,17 @@ public class RestPrismObjectAddService<O extends ObjectType> implements ObjectAd
         this.object = object;
     }
 
-    public RestPrismObjectAddService setOptions(List<String> options) {
+    public RestPrismObjectAddService<O> setOptions(List<String> options) {
         this.options = options;
+        return this;
+    }
+
+    @Override
+    public RestPrismObjectAddService<O> addOption(String value) {
+        if (options == null) {
+            options = new ArrayList<>();
+        }
+        options.add(value);
         return this;
     }
 
