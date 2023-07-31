@@ -23,14 +23,16 @@ import com.evolveum.midpoint.client.api.ResourceOperationService;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.CommonException;
 
+import org.apache.hc.core5.http.ClassicHttpResponse;
+
 public class RestPrismResourceOperationService<T> implements ResourceOperationService<T> {
 
     private RestPrismService service;
     private String path;
-    private Function<CloseableHttpResponse, T> responseHandler;
+    private Function<ClassicHttpResponse, T> responseHandler;
 
 
-    public RestPrismResourceOperationService(RestPrismService service, String path, Function<CloseableHttpResponse, T> responseHandler) {
+    public RestPrismResourceOperationService(RestPrismService service, String path, Function<ClassicHttpResponse, T> responseHandler) {
         this.service = service;
         this.path = path;
         this.responseHandler = responseHandler;
@@ -39,7 +41,7 @@ public class RestPrismResourceOperationService<T> implements ResourceOperationSe
 
     @Override
     public TaskFuture<T> apost() throws CommonException {
-        CloseableHttpResponse response = service.httpPost(path, null);
+        ClassicHttpResponse response = service.httpPost(path, null);
         T parsedResponse = responseHandler.apply(response);
         return new RestPrismCompletedFuture<>(parsedResponse);
 

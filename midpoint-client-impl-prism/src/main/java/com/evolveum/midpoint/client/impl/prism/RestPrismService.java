@@ -35,6 +35,8 @@ import com.evolveum.midpoint.schema.constants.ObjectTypes;
 import com.evolveum.midpoint.schema.result.OperationResult;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
+
 public class RestPrismService implements Service {
 
     private PrismContext prismContext;
@@ -148,11 +150,11 @@ public class RestPrismService implements Service {
         return Request.get(relativePath).execute(httpClient);
     }
 
-    CloseableHttpResponse httpPost(String relativePath, HttpEntity object) throws SchemaException {
+    ClassicHttpResponse httpPost(String relativePath, HttpEntity object) throws SchemaException {
         return httpPost(relativePath, object, null);
     }
 
-    CloseableHttpResponse httpPost(String relativePath, HttpEntity object, List<String> options) throws SchemaException {
+    ClassicHttpResponse httpPost(String relativePath, HttpEntity object, List<String> options) throws SchemaException {
         StringBuilder uri = new StringBuilder(baseUrl + "/" + relativePath);
         if (options != null && options.size() > 0) {
             uri.append("?options=");
@@ -168,7 +170,7 @@ public class RestPrismService implements Service {
             req.body(object);
         }
         try {
-            return (CloseableHttpResponse) req.execute(httpClient).returnResponse();
+            return (ClassicHttpResponse) req.execute(httpClient).returnResponse();
         } catch (IOException e) {
             throw new SchemaException(e.getMessage(), e);
         }
@@ -195,7 +197,7 @@ public class RestPrismService implements Service {
     }
 
     String addObject(ObjectTypes type, ObjectType object, List<String> options) throws ObjectAlreadyExistsException, SchemaException {
-        CloseableHttpResponse httpResponse = httpPost(type.getRestType(), createEntity(object), options);
+        ClassicHttpResponse httpResponse = httpPost(type.getRestType(), createEntity(object), options);
 
         switch (httpResponse.getCode()) {
             case HttpStatus.SC_OK:
