@@ -63,6 +63,7 @@ public class RestJaxbExecuteScriptRpcService<T> implements ExecuteScriptRpcServi
 
 		switch (response.getStatus()) {
 			case 200:
+            case 240: // Intentional fall through
 				ExecuteScriptResponseType executeScriptResponse = response.readEntity(ExecuteScriptResponseType.class);
 				return new RestJaxbCompletedFuture<>((T) executeScriptResponse);
 			case 201:

@@ -56,6 +56,7 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 
 		switch (response.getStatus()) {
         case 200:
+        case 240:
             PolicyItemsDefinitionType itemsDefinitionType = response.readEntity(PolicyItemsDefinitionType.class);
             return new RestJaxbCompletedFuture<>(itemsDefinitionType);
 		case 409:

@@ -54,6 +54,7 @@ public class RestJaxbObjectGenerateService<O extends ObjectType> extends Abstrac
 
         switch (response.getStatus()) {
             case 200:
+            case 240:
                 RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), oid);
                 return new RestJaxbCompletedFuture<>(ref);
             default:
