@@ -18,7 +18,7 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.ObjectAddService;
 import com.evolveum.midpoint.client.api.ObjectReference;

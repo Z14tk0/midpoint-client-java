@@ -27,7 +27,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.util.*;
 
 /**

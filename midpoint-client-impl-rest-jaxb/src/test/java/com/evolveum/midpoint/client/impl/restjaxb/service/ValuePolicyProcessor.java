@@ -25,9 +25,9 @@ import java.util.Random;
 import java.util.Set;
 
 import javax.naming.CommunicationException;
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
+import jakarta.xml.bind.JAXBElement;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -68,7 +68,7 @@ public class ValuePolicyProcessor {
 		ParamsType params = new ParamsType();
 		EntryType entry = new EntryType();
 		entry.setKey("policyName");
-		entry.setEntryValue(new JAXBElement<PolyStringType>(new QName("value"), PolyStringType.class, pp.getName()));
+		entry.setEntryValue(new JAXBElement<>(new QName("value"), PolyStringType.class, pp.getName()));
 		params.getEntry().add(entry);
 		result.setParams(params);
 		normalize(pp);

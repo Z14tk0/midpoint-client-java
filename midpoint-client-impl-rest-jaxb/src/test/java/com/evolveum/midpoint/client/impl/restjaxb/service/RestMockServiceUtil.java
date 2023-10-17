@@ -18,10 +18,10 @@ package com.evolveum.midpoint.client.impl.restjaxb.service;
 import java.net.URI;
 
 import javax.naming.CommunicationException;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
+import jakarta.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;

@@ -16,7 +16,7 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
 import java.util.function.Function;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.ResourceOperationService;
 import com.evolveum.midpoint.client.api.TaskFuture;

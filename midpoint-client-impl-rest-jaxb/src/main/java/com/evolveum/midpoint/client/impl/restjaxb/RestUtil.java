@@ -26,7 +26,7 @@ import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 import java.net.URI;
 import java.util.List;

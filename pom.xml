@@ -37,12 +37,12 @@
         <midpoint.version>4.8-SNAPSHOT</midpoint.version>
 
         <testng.version>7.6.1</testng.version>
-        <cxf.version>3.5.3</cxf.version>
+        <cxf.version>4.0.1</cxf.version>
         <!-- Normally both versions are the same but sometimes databind is patched and core stays. -->
         <jackson.version>2.13.4</jackson.version>
         <jackson-databind.version>2.13.4.2</jackson-databind.version>
         <httpclient.version>5.1.3</httpclient.version>
-        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <jaxb-api.version>3.0.0</jaxb-api.version>
         <jaxb.version>3.0.2</jaxb.version>
         <activation.version>1.2.0</activation.version>
         <surefire.version>3.0.0-M5</surefire.version>
@@ -128,13 +128,13 @@
                 <version>${jackson-databind.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jaxb-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
+                <groupId>jakarta.xml.bind-api</groupId>
+                <artifactId>jakarta.xml.bind-impl</artifactId>
                 <version>${jaxb.version}</version>
             </dependency>
             <dependency>

@@ -29,12 +29,12 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
