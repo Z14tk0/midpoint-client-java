@@ -49,6 +49,7 @@ public class RestJaxbPolicyGenerateService<O extends ObjectType> extends Abstrac
         switch (response.getStatus()) {
             case 200:
             case 240:
+            case 250:
                 PolicyItemsDefinitionType itemsDefinitionType = response.readEntity(PolicyItemsDefinitionType.class);
                 return new RestJaxbCompletedFuture<>(itemsDefinitionType);
             default:

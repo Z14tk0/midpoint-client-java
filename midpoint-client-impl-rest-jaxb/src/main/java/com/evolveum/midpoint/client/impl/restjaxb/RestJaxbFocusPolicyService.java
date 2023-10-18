@@ -38,6 +38,7 @@ public class RestJaxbFocusPolicyService<T> implements FocusPolicyService<T> {
         switch (response.getStatus()) {
             case 200:
             case 240:
+            case 250:
                 return response.readEntity(expectedType);
             default:
                 throw new IllegalStateException("Unexpected value: " + response.getStatus());

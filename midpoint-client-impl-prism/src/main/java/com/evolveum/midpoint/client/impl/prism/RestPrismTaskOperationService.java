@@ -46,6 +46,7 @@ public class RestPrismTaskOperationService implements TaskOperationService {
             case 202:
             case 204:
             case 240:
+            case 250:
                 RestPrismObjectReference<TaskType> task = new RestPrismObjectReference<>(oid, TaskType.class);
                 return new RestPrismCompletedFuture<>(task);
             default:

@@ -262,7 +262,7 @@ public class RestJaxbService implements Service {
 
         Response response = cli.get();
 
-        if (Status.OK.getStatusCode() == response.getStatus()) {
+        if (isOk(response.getStatus())) {
             return response.readEntity(type);
         }
 
@@ -278,6 +278,10 @@ public class RestJaxbService implements Service {
             throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
         }
         return null;
+    }
+
+    protected static boolean isOk(int statusCode) {
+        return statusCode == 200 || statusCode == 240 || statusCode == 250;
     }
 
     private void addQueryParameter(String name, List<String> values) {

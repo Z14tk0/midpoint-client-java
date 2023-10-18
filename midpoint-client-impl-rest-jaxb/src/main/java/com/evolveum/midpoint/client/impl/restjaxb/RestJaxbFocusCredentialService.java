@@ -58,6 +58,7 @@ public class RestJaxbFocusCredentialService<O extends ObjectType>  extends Abstr
         switch (response.getStatus()) {
             case 200:
             case 240:
+            case 250:
                 ExecuteCredentialResetResponseType executeCredentialResetResponse = response.readEntity(ExecuteCredentialResetResponseType.class);
                 return new RestJaxbCompletedFuture<>(executeCredentialResetResponse);
             case 409:

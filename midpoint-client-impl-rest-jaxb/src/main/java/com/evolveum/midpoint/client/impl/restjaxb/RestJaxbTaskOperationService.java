@@ -46,6 +46,7 @@ public class RestJaxbTaskOperationService implements TaskOperationService {
             case 202:
             case 204:
             case 240:
+            case 250:
                 RestJaxbObjectReference<TaskType> task = new RestJaxbObjectReference<>(service, TaskType.class, oid);
                 return new RestJaxbCompletedFuture<>(task);
             default:
