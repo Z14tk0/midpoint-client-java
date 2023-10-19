@@ -37,10 +37,8 @@ public class RestJaxbResourceOperationService<T> implements ResourceOperationSer
     }
 
     @Override
-    public TaskFuture<T> apost(List<String> options) throws CommonException {
-
+    public TaskFuture<T> apost() throws CommonException {
         Response response = service.post(path, null);
-
         T object = responseHandler.apply(response);
         return new RestJaxbCompletedFuture<>(object);
 

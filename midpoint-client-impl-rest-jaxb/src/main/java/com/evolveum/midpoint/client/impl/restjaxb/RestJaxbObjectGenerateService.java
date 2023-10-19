@@ -48,7 +48,7 @@ public class RestJaxbObjectGenerateService<O extends ObjectType> extends Abstrac
 
 
     @Override
-    public TaskFuture<ObjectReference<O>> apost(List<String> options) throws ObjectNotFoundException {
+    public TaskFuture<ObjectReference<O>> apost() throws ObjectNotFoundException {
         String oid = getOid();
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);
         restPath += "/generate";

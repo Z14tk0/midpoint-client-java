@@ -66,7 +66,7 @@ public class RestJaxbRpcService<T> implements RpcService<T> {
     }
 
 	@Override
-	public TaskFuture<T> apost(List<String> options) throws CommonException {
+	public TaskFuture<T> apost() throws CommonException {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -27,7 +27,7 @@ import java.util.List;
  * @author semancik
  *
  */
-public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> {
+public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> , ExecuteOptionSupport<ObjectService<O>> {
 
 	ObjectModifyService<O> modify() throws ObjectNotFoundException;
 
@@ -35,4 +35,9 @@ public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> {
     O get(List<String> options) throws ObjectNotFoundException;
 
     O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException;
+
+
+    ObjectService<O> include(String path);
+
+    ObjectService<O> exclude(String path);
 }

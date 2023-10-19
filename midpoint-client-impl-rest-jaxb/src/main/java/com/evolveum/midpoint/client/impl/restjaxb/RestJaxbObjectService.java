@@ -20,6 +20,7 @@ import com.evolveum.midpoint.client.api.ObjectService;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,6 +28,10 @@ import java.util.List;
  *
  */
 public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectWebResource<O> implements ObjectService<O> {
+
+    List<String> options = new ArrayList<>();
+    List<String> include = new ArrayList<>();
+    List<String> exclude = new ArrayList<>();
 
 	public RestJaxbObjectService(final RestJaxbService service, final Class<O> type, final String oid) {
 		super(service, type, oid);
@@ -44,7 +49,20 @@ public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectW
 
 	@Override
 	public O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException {
-		return getService().getObject(getType(), getOid(), options, include, exclude);
+
+        var mergedOptions = new ArrayList<>(this.options);
+        var mergedInclude = new ArrayList<>(this.include);
+        var mergedExclude = new ArrayList<>(this.exclude);
+        if (options != null) {
+            mergedOptions.addAll(options);
+        }
+        if (include != null) {
+            mergedInclude.addAll(include);
+        }
+        if (exclude != null) {
+            mergedExclude.addAll(exclude);
+        }
+        return getService().getObject(getType(), getOid(), mergedOptions, mergedInclude, mergedExclude);
 	}
 
 	@Override
@@ -55,6 +73,29 @@ public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectW
 
 	@Override
 	public ObjectModifyService<O> modify() throws ObjectNotFoundException {
-		return new RestJaxbObjectModifyService<>(getService(), getType(), getOid());
+		return new RestJaxbObjectModifyService<>(getService(), getType(), getOid(), options);
 	}
+
+    @Override
+    public ObjectService<O> addOption(String option) {
+        options.add(option);
+        return this;
+    }
+
+    @Override
+    public List<String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public ObjectService<O> include(String path) {
+        include.add(path);
+        return this;
+    }
+
+    @Override
+    public ObjectService<O> exclude(String path) {
+        exclude.add(path);
+        return this;
+    }
 }

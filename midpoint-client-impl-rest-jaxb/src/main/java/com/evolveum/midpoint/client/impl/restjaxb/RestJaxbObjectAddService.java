@@ -50,6 +50,11 @@ public class RestJaxbObjectAddService<O extends ObjectType> extends AbstractObje
     }
 
     @Override
+    public List<String> getOptions() {
+        return options;
+    }
+
+    @Override
 	public TaskFuture<ObjectReference<O>> apost() throws ObjectAlreadyExistsException, ObjectNotFoundException {
 		// TODO: item object
 

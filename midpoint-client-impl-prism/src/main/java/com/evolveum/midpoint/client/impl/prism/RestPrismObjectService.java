@@ -16,6 +16,7 @@
 package com.evolveum.midpoint.client.impl.prism;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.evolveum.midpoint.client.api.ObjectModifyService;
@@ -33,6 +34,10 @@ import org.apache.hc.core5.http.HttpStatus;
 public class RestPrismObjectService<O extends ObjectType> extends CommonPrismService implements ObjectService<O> {
 
     private String oid;
+
+    private List<String> include = new ArrayList<>();
+    private List<String> exclude = new ArrayList<>();
+    private List<String> options = new ArrayList<>();
 
     public RestPrismObjectService(RestPrismService service, ObjectTypes type, String oid) {
         super(service, type);
@@ -77,6 +82,29 @@ public class RestPrismObjectService<O extends ObjectType> extends CommonPrismSer
 
     String getOid() {
         return oid;
+    }
+
+    @Override
+    public ObjectService<O> exclude(String path) {
+        exclude.add(path);
+        return this;
+    }
+
+    @Override
+    public ObjectService<O> addOption(String option) {
+        options.add(option);
+        return this;
+    }
+
+    @Override
+    public ObjectService<O> include(String path) {
+        include.add(path);
+        return this;
+    }
+
+    @Override
+    public List<String> getOptions() {
+        return options;
     }
 }
 

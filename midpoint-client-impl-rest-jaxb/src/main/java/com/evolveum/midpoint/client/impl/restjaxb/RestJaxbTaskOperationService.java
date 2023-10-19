@@ -38,7 +38,7 @@ public class RestJaxbTaskOperationService implements TaskOperationService {
     }
 
     @Override
-    public TaskFuture<ObjectReference<TaskType>> apost(List<String> options) throws CommonException {
+    public TaskFuture<ObjectReference<TaskType>> apost() throws CommonException {
 
         String restPath = RestUtil.subUrl(Types.findType(TaskType.class).getRestPath(), oid, path);
         Response response = service.post(restPath, null);

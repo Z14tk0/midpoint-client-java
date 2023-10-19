@@ -62,7 +62,7 @@ public class TestTaskIntegration extends AbstractTest {
 
     @Test
     public void test110suspendRecomputeTask() throws Exception {
-        service.tasks().oid(recomputeTaskOid).suspend().post(null);
+        service.tasks().oid(recomputeTaskOid).suspend().post();
 
         // wait a bit so the task manager can do its job
         Thread.sleep(5000);
@@ -73,7 +73,7 @@ public class TestTaskIntegration extends AbstractTest {
 
     @Test
     public void test120resumeRecomputeTask() throws Exception {
-        service.tasks().oid(recomputeTaskOid).resume().post(null);
+        service.tasks().oid(recomputeTaskOid).resume().post();
 
         // wait a bit so the task manager can do its job
         Thread.sleep(5000);

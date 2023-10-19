@@ -291,7 +291,7 @@ public class TestBasic extends AbstractTest {
                 .policy("00000000-0000-0000-0000-000000000003")
                 .value("as")
                 .build()
-                .post(null);
+                .post();
 
         boolean allMatch = defs.getPolicyItemDefinition().stream().allMatch(def -> def.getResult().getStatus() == OperationResultStatusType.SUCCESS);
         assertEquals(allMatch, true);
@@ -304,7 +304,7 @@ public class TestBasic extends AbstractTest {
                 .item()
                 .value("asdasd")
                 .build()
-                .post(null);
+                .post();
     }
 
     @Test
@@ -321,7 +321,7 @@ public class TestBasic extends AbstractTest {
                 .policy("00000000-0000-0000-0000-p00000000001")
                 .value("dfgsdf")
                 .build()
-                .post(null);
+                .post();
     }
 
     @Test
@@ -332,7 +332,7 @@ public class TestBasic extends AbstractTest {
                 .item()
                 .path("name")
                 .build()
-                .post(null);
+                .post();
     }
 
     @Test
@@ -348,7 +348,7 @@ public class TestBasic extends AbstractTest {
                 .policy("00000000-0000-0000-0000-p00000000001")
                 .path("credentials/password/value")
                 .build()
-                .post(null);
+                .post();
     }
 
     @Test

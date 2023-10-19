@@ -124,7 +124,7 @@ public class TestIntegrationBasic extends AbstractTest {
     public void test220GeneratePasswordsUsingScripting() throws Exception {
         // WHEN
         ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_GENERATE_PASSWORD);
-        ExecuteScriptResponseType response = service.rpc().executeScript(request).post(null);
+        ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
 
         // THEN
         List<ObjectProcessingOutput<ValueGenerationData<String>>> outputs = service.scriptingUtil()
@@ -154,7 +154,7 @@ public class TestIntegrationBasic extends AbstractTest {
     public void test230ModifyValidToUsingScripting() throws Exception {
         // WHEN
         ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_MODIFY_VALID_TO);
-        ExecuteScriptResponseType response = service.rpc().executeScript(request).post(null);
+        ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
 
         // THEN
         List<ObjectProcessingOutput<OperationSpecificData>> outputs = service.scriptingUtil().extractObjectProcessingOutput(response);

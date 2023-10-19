@@ -41,10 +41,13 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
 
     private List<ItemDeltaType> modifications;
 
-    public RestJaxbObjectModifyService(RestJaxbService service, Class<O> type, String oid)
+    private List<String> options;
+
+    public RestJaxbObjectModifyService(RestJaxbService service, Class<O> type, String oid, List<String> options)
     {
         super(service, type, oid);
         modifications = new ArrayList<>();
+        options = new ArrayList<>(options);
     }
 
     @Override
@@ -94,17 +97,15 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
     }
 
     @Override
-    public TaskFuture<ObjectReference<O>> apost(List<String> options) throws ObjectNotFoundException {
+    public TaskFuture<ObjectReference<O>> apost() throws ObjectNotFoundException {
 
         Map<String, List<String>> queryParams = null;
-        if (options != null && !options.isEmpty()) {
-            queryParams = new HashMap<>();
-            queryParams.put("options", options);
+        if (!getOptions().isEmpty()) {
+            queryParams = Map.of("options", getOptions());
         }
 
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid());
-        Response response = getService().post(restPath, RestUtil.buildModifyObject(modifications), queryParams); //TODO params
-
+        Response response = getService().post(restPath, RestUtil.buildModifyObject(modifications), queryParams);
         switch (response.getStatus()) {
             case 204:
             case 240: // handled error
@@ -115,7 +116,16 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
             default:
                 throw new UnsupportedOperationException("Implement other status codes, unsupported return status: " + response.getStatus());
         }
+    }
 
+    @Override
+    public List<String> getOptions() {
+        return options;
+    }
 
+    @Override
+    public ObjectModifyService<O> addOption(String option) {
+        options.add(option);
+        return self();
     }
 }

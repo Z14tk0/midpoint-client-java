@@ -42,7 +42,7 @@ public class RestJaxbPolicyGenerateService<O extends ObjectType> extends Abstrac
 
 
     @Override
-    public TaskFuture<PolicyItemsDefinitionType> apost(List<String> options) throws ObjectNotFoundException {
+    public TaskFuture<PolicyItemsDefinitionType> apost() throws ObjectNotFoundException {
         String oid = getOid();
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);
         restPath += "/generate";
