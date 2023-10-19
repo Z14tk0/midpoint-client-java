@@ -39,7 +39,7 @@ public class RestPrismObjectAddService<O extends ObjectType> implements ObjectAd
         this.object = object;
     }
 
-    public RestPrismObjectAddService<O> setOptions(List<String> options) {
+    public RestPrismObjectAddService setOptions(List<String> options) {
         this.options = options;
         return this;
     }

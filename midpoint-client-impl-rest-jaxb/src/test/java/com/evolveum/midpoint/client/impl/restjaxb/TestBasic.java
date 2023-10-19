@@ -75,7 +75,7 @@ public class TestBasic extends AbstractTest {
         userBefore.setActivation(activation);
 
         // WHEN
-        ObjectReference<UserType> ref = service.users().add(userBefore).post();
+        ObjectReference<UserType> ref = service.users().add(userBefore).post(null);
 
         // THEN
         assertNotNull("Null oid", ref.getOid());
@@ -139,7 +139,7 @@ public class TestBasic extends AbstractTest {
                     .modify()
                     .replace(modifications)
                     .add("givenName", util.createPoly("Charlie"))
-                    .post();
+                    .post(null);
         } catch (ObjectNotFoundException e) {
             fail("Cannot modify user, user not found");
         }
@@ -147,7 +147,7 @@ public class TestBasic extends AbstractTest {
         UserType user = ref.get();
         assertEquals(user.getDescription(), "test description");
         assertEquals(util.getOrig(user.getGivenName()), "Charlie");
-        ref = service.users().oid("123").modify().delete("givenName", util.createPoly("Charlie")).post();
+        ref = service.users().oid("123").modify().delete("givenName", util.createPoly("Charlie")).post(null);
 
         assertEquals(ref.get().getGivenName(), null);
     }
@@ -291,7 +291,7 @@ public class TestBasic extends AbstractTest {
                 .policy("00000000-0000-0000-0000-000000000003")
                 .value("as")
                 .build()
-                .post();
+                .post(null);
 
         boolean allMatch = defs.getPolicyItemDefinition().stream().allMatch(def -> def.getResult().getStatus() == OperationResultStatusType.SUCCESS);
         assertEquals(allMatch, true);
@@ -304,7 +304,7 @@ public class TestBasic extends AbstractTest {
                 .item()
                 .value("asdasd")
                 .build()
-                .post();
+                .post(null);
     }
 
     @Test
@@ -321,7 +321,7 @@ public class TestBasic extends AbstractTest {
                 .policy("00000000-0000-0000-0000-p00000000001")
                 .value("dfgsdf")
                 .build()
-                .post();
+                .post(null);
     }
 
     @Test
@@ -332,7 +332,7 @@ public class TestBasic extends AbstractTest {
                 .item()
                 .path("name")
                 .build()
-                .post();
+                .post(null);
     }
 
     @Test
@@ -348,7 +348,7 @@ public class TestBasic extends AbstractTest {
                 .policy("00000000-0000-0000-0000-p00000000001")
                 .path("credentials/password/value")
                 .build()
-                .post();
+                .post(null);
     }
 
     @Test

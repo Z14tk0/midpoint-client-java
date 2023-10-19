@@ -20,6 +20,7 @@ import static java.util.Collections.singletonList;
 import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.AuthorizationException;
+import com.evolveum.midpoint.client.api.exception.InternalServerErrorException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.exception.PartialErrorException;
 import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
@@ -240,7 +241,7 @@ public class RestJaxbService implements Service {
     }
 
     <O extends ObjectType> O getObject(final Class<O> type, final String oid)
-            throws ObjectNotFoundException {
+            throws ObjectNotFoundException, AuthenticationException, AuthorizationException, InternalServerErrorException {
         return getObject(type, oid, null, null, null);
     }
 
@@ -251,7 +252,7 @@ public class RestJaxbService implements Service {
      */
     <O extends ObjectType> O getObject(final Class<O> type, final String oid, List<String> options,
             List<String> include, List<String> exclude)
-            throws ObjectNotFoundException {
+            throws ObjectNotFoundException, AuthenticationException, AuthorizationException, InternalServerErrorException {
 
         String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
         WebClient cli = client.replacePath(urlPrefix);
@@ -276,6 +277,10 @@ public class RestJaxbService implements Service {
 
         if (Status.FORBIDDEN.getStatusCode() == response.getStatus()) {
             throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
+        }
+
+        if (Status.INTERNAL_SERVER_ERROR.getStatusCode() == response.getStatus()) {
+            throw new InternalServerErrorException(response.getStatusInfo().getReasonPhrase());
         }
         return null;
     }
@@ -327,6 +332,8 @@ public class RestJaxbService implements Service {
                 //TODO: Do we want to return a reference? Might be useful.
             case 404:
                 throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
+            case 500:
+                throw new InternalServerErrorException(response.getStatusInfo().getReasonPhrase());
         }
     }
 
@@ -340,7 +347,7 @@ public class RestJaxbService implements Service {
         }
     }
 
-    <O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws ObjectNotFoundException {
+    <O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws BadRequestException, ObjectNotFoundException, AuthenticationException, InternalServerErrorException {
         String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
         Response response = client.replacePath(urlPrefix).delete();
 
@@ -364,6 +371,10 @@ public class RestJaxbService implements Service {
         if (Status.UNAUTHORIZED.getStatusCode() == response.getStatus()) {
             throw new AuthenticationException("Cannot authentication user");
         }
+
+        if (Status.INTERNAL_SERVER_ERROR.getStatusCode() == response.getStatus()) {
+            throw new InternalServerErrorException(response.getStatusInfo().getReasonPhrase());
+        }
     }
 
     @Override
@@ -381,6 +392,10 @@ public class RestJaxbService implements Service {
 
         if (Status.UNAUTHORIZED.getStatusCode() == response.getStatus()) {
             throw new AuthenticationException("Cannot authentication user");
+        }
+
+        if (Status.INTERNAL_SERVER_ERROR.getStatusCode() == response.getStatus()) {
+            throw new InternalServerErrorException(response.getStatusInfo().getReasonPhrase());
         }
         return null;
     }

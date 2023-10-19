@@ -51,7 +51,7 @@ public class TestTaskIntegration extends AbstractTest {
     public void test100addRecomputeTask() throws Exception {
         TaskType recomputeTask = createRecomputeTask(TaskExecutionStateType.RUNNABLE, TaskRecurrenceType.SINGLE);
 
-        ObjectReference<TaskType> taskType = service.tasks().add(recomputeTask).post();
+        ObjectReference<TaskType> taskType = service.tasks().add(recomputeTask).post(null);
         recomputeTaskOid = taskType.getOid();
 
         TaskType taskAfter = service.tasks().oid(recomputeTaskOid).get(null, Collections.singletonList("nodeAsObserved"), null);
@@ -62,7 +62,7 @@ public class TestTaskIntegration extends AbstractTest {
 
     @Test
     public void test110suspendRecomputeTask() throws Exception {
-        service.tasks().oid(recomputeTaskOid).suspend().post();
+        service.tasks().oid(recomputeTaskOid).suspend().post(null);
 
         // wait a bit so the task manager can do its job
         Thread.sleep(5000);
@@ -73,7 +73,7 @@ public class TestTaskIntegration extends AbstractTest {
 
     @Test
     public void test120resumeRecomputeTask() throws Exception {
-        service.tasks().oid(recomputeTaskOid).resume().post();
+        service.tasks().oid(recomputeTaskOid).resume().post(null);
 
         // wait a bit so the task manager can do its job
         Thread.sleep(5000);

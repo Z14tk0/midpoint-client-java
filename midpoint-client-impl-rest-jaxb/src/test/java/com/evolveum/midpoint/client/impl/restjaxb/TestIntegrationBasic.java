@@ -71,7 +71,7 @@ public class TestIntegrationBasic extends AbstractTest {
     @Test
     public void test210createUserjack() throws Exception {
         UserType userJack = unmarshallFromFile(UserType.class, USER_JACK_FILE);
-        ObjectReference<UserType> userJackRef = service.users().add(userJack).post();
+        ObjectReference<UserType> userJackRef = service.users().add(userJack).post(null);
         UserType userJackAfter = userJackRef.get();
 
         assertNotNull("Unexpected null object", userJackAfter);
@@ -124,7 +124,7 @@ public class TestIntegrationBasic extends AbstractTest {
     public void test220GeneratePasswordsUsingScripting() throws Exception {
         // WHEN
         ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_GENERATE_PASSWORD);
-        ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
+        ExecuteScriptResponseType response = service.rpc().executeScript(request).post(null);
 
         // THEN
         List<ObjectProcessingOutput<ValueGenerationData<String>>> outputs = service.scriptingUtil()
@@ -154,7 +154,7 @@ public class TestIntegrationBasic extends AbstractTest {
     public void test230ModifyValidToUsingScripting() throws Exception {
         // WHEN
         ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_MODIFY_VALID_TO);
-        ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
+        ExecuteScriptResponseType response = service.rpc().executeScript(request).post(null);
 
         // THEN
         List<ObjectProcessingOutput<OperationSpecificData>> outputs = service.scriptingUtil().extractObjectProcessingOutput(response);
@@ -185,7 +185,7 @@ public class TestIntegrationBasic extends AbstractTest {
         orgBefore.setName(service.util().createPoly("test300"));
 
         // WHEN
-        ObjectReference<OrgType> ref = service.orgs().add(orgBefore).post();
+        ObjectReference<OrgType> ref = service.orgs().add(orgBefore).post(null);
 
         // THEN
         test300oid = ref.getOid();
@@ -211,7 +211,7 @@ public class TestIntegrationBasic extends AbstractTest {
         orgBefore.getAssignment().add(assignment);
 
         // WHEN
-        ObjectReference<OrgType> ref = service.orgs().add(orgBefore).post();
+        ObjectReference<OrgType> ref = service.orgs().add(orgBefore).post(null);
 
         // THEN
         test310oid = ref.getOid();
@@ -237,7 +237,7 @@ public class TestIntegrationBasic extends AbstractTest {
         orgBefore.getAssignment().add(assignment);
 
         // WHEN
-        ObjectReference<OrgType> ref = service.orgs().add(orgBefore).post();
+        ObjectReference<OrgType> ref = service.orgs().add(orgBefore).post(null);
 
         // THEN
         test320oid = ref.getOid();
@@ -301,7 +301,7 @@ public class TestIntegrationBasic extends AbstractTest {
     //TODO finish test, MID-6851
     @Test
     public void test490modifyReplaceNull() throws Exception {
-        service.users().oid(USER_JACK_OID).modify().replace("assignment[1]/activation/validFrom", null).post();
+        service.users().oid(USER_JACK_OID).modify().replace("assignment[1]/activation/validFrom", null).post(null);
     }
 
     @Test
@@ -384,7 +384,7 @@ public class TestIntegrationBasic extends AbstractTest {
     public void test700addSecurityPolicy() throws Exception {
         SecurityPolicyType securityPolicyType = unmarshallFromFile(SecurityPolicyType.class, SECURITY_POLICY_FILE);
 
-        service.securityPolicies().add(securityPolicyType).post();
+        service.securityPolicies().add(securityPolicyType).post(null);
 
         SecurityPolicyType securityPolicyAfter = service.securityPolicies().oid(SECURITY_POLICY_OID).get();
         assertNotNull(securityPolicyAfter);
@@ -405,7 +405,7 @@ public class TestIntegrationBasic extends AbstractTest {
                 .oid(SystemObjectsType.SYSTEM_CONFIGURATION.value())
                 .modify()
                 .replace("globalSecurityPolicyRef", securityPolicyRef)
-                .post();
+                .post(null);
 
         SystemConfigurationType systemConfigurationType = service.systemConfigurations().oid(SystemObjectsType.SYSTEM_CONFIGURATION.value()).get();
         assertNotNull(systemConfigurationType);
@@ -419,7 +419,7 @@ public class TestIntegrationBasic extends AbstractTest {
     public void test710addUserGuybrush() throws Exception {
         UserType userGuybrush= unmarshallFromFile(UserType.class, USER_GUYBRUSH_FILE);
 
-        ObjectReference<UserType> user = service.users().add(userGuybrush).post();
+        ObjectReference<UserType> user = service.users().add(userGuybrush).post(null);
 
         UserType guybrushAfter = user.get();
         assertNotNull(guybrushAfter.getCredentials().getSecurityQuestions());
@@ -549,7 +549,7 @@ public class TestIntegrationBasic extends AbstractTest {
                 .oid(SystemObjectsType.SYSTEM_CONFIGURATION.value())
                 .modify()
                 .replace("globalSecurityPolicyRef", securityPolicyRef)
-                .post();
+                .post(null);
 
         SystemConfigurationType systemConfigurationType = service.systemConfigurations().oid(SystemObjectsType.SYSTEM_CONFIGURATION.value()).get();
         assertNotNull(systemConfigurationType);

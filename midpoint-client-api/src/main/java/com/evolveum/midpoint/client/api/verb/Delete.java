@@ -16,6 +16,7 @@
 package com.evolveum.midpoint.client.api.verb;
 
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.InternalServerErrorException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 
 /**
@@ -25,6 +26,6 @@ import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 public interface Delete<T> {
 
 	//TODO: Does this need to return anything?
-	void delete() throws ObjectNotFoundException;
+	void delete() throws ObjectNotFoundException, AuthenticationException, InternalServerErrorException;
 
 }

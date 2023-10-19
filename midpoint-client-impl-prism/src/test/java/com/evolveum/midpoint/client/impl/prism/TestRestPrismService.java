@@ -82,7 +82,7 @@ public class TestRestPrismService {
     @Test
     public void test010addUser() throws Exception {
         UserType user = new UserType().name("00clientUser").givenName("given").familyName("family");
-        ObjectReference<UserType> ref = service.users().add(user).post();
+        ObjectReference<UserType> ref = service.users().add(user).post(null);
 
         AssertJUnit.assertNotNull(ref.getOid());
         userOid = ref.getOid();
@@ -104,7 +104,7 @@ public class TestRestPrismService {
     @Test
     public void test100testResource() throws Exception {
 
-        OperationResultType resultType = service.resources().oid("ac5199fb-c5bd-46c3-a549-d82e8fd30dc2").test().post();
+        OperationResultType resultType = service.resources().oid("ac5199fb-c5bd-46c3-a549-d82e8fd30dc2").test().post(null);
         OperationResult result = OperationResult.createOperationResult(resultType);
 
         AssertJUnit.assertTrue(result.isSuccess());
@@ -113,7 +113,7 @@ public class TestRestPrismService {
     @Test
     public void test120testResourceDown() throws Exception {
 
-        OperationResultType resultType = service.resources().oid("2a7c7130-7a34-11e4-bdf6-001e8c717e5b").test().post();
+        OperationResultType resultType = service.resources().oid("2a7c7130-7a34-11e4-bdf6-001e8c717e5b").test().post(null);
         OperationResult result = OperationResult.createOperationResult(resultType);
 
         AssertJUnit.assertTrue(result.isFatalError());

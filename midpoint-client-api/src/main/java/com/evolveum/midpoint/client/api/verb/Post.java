@@ -15,6 +15,7 @@
  */
 package com.evolveum.midpoint.client.api.verb;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.evolveum.midpoint.client.api.TaskFuture;
@@ -29,9 +30,9 @@ public interface Post<T> {
 	/**
 	 * Synchronous POST.
 	 */
-	default T post() throws OperationInProgressException, CommonException {
+	default T post(List<String> options) throws CommonException {
 
-		TaskFuture<T> future = apost();
+		TaskFuture<T> future = apost(options);
 
 		if (!future.isDone()) {
 			// TODO: better error message
@@ -64,6 +65,6 @@ public interface Post<T> {
 	 * Potentially asynchronous POST.
 	 * @throws AuthorizationException
 	 */
-	TaskFuture<T> apost() throws CommonException;
+	TaskFuture<T> apost(List<String> options) throws CommonException;
 
 }
