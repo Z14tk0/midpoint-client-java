@@ -38,7 +38,7 @@ public class RestPrismTaskOperationService implements TaskOperationService {
     }
 
     @Override
-    public TaskFuture<ObjectReference<TaskType>> apost(List<String> options) throws CommonException {
+    public TaskFuture<ObjectReference<TaskType>> apost() throws CommonException {
 
         String fullPath = "/tasks/" + oid + "/" + path;
         HttpResponse response = service.httpPost(fullPath, null);

@@ -5,6 +5,7 @@ import com.evolveum.midpoint.client.api.verb.Post;
 
 import java.util.List;
 
+import static com.evolveum.midpoint.client.api.ExecuteOption.*;
 public interface ExecuteOptionSupport<S extends ExecuteOptionSupport> {
 
 
@@ -41,5 +42,46 @@ public interface ExecuteOptionSupport<S extends ExecuteOptionSupport> {
             return post();
         }
     }
+
+    default S raw() {
+        return addOption(RAW);
+    }
+
+    default S executeImmediatelyAfterApproval() {
+        return addOption(EXECUTE_IMMEDIATELY_AFTER_APPROVAL);
+    }
+
+    default S force() {
+        return addOption(FORCE);
+    }
+
+    default S pushChanges() {
+        return addOption(PUSH_CHANGES);
+    }
+
+    default S noCrypt() {
+        return addOption(NO_CRYPT);
+    }
+
+    default S overwrite() {
+        return addOption(OVERWRITE);
+    }
+
+    default S reconcile() {
+        return addOption(RECONCILE);
+    }
+
+    default S isImport() {
+        return addOption(IS_IMPORT);
+    }
+
+    default S limitPropagation() {
+        return addOption(LIMIT_PROPAGATION);
+    }
+
+    default S reevaluateSearchFilters() {
+        return addOption(REEVALUATE_SEARCH_FILTERS);
+    }
+
 
 }

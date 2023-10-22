@@ -54,6 +54,11 @@ public class RestPrismObjectAddService<O extends ObjectType> implements ObjectAd
     }
 
     @Override
+    public List<String> getOptions() {
+        return options;
+    }
+
+    @Override
     public TaskFuture<ObjectReference<O>> apost() throws ObjectAlreadyExistsException, SchemaException {
 
         String oid = service.addObject(type, object, options);
