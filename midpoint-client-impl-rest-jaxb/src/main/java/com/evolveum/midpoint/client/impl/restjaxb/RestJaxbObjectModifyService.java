@@ -47,7 +47,7 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
     {
         super(service, type, oid);
         modifications = new ArrayList<>();
-        options = new ArrayList<>(options);
+        this.options = new ArrayList<>(options);
     }
 
     @Override
