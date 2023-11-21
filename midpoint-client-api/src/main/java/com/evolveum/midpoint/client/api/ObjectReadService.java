@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Evolveum
+ * Copyright (c) 2023 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,11 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+import com.evolveum.midpoint.client.api.verb.Get;
 
-/**
- * @author semancik
- *
- */
-public interface ObjectCollectionService<O extends ObjectType> {
+public interface ObjectReadService<O> extends Get<O> {
 
-	ObjectService<O> oid(String oid);
+    GetOptionSupport.WithGet<O> options();
 
-	SearchService<O> search();
-
-	// TODO: get() as search().get()? or vice versa?
-
-	ObjectAddService<O> add(O object);
-	// TODO
 
 }

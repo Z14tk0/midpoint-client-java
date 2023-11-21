@@ -46,7 +46,7 @@ public class TestRestPrismService {
     @Test
     public void test001getUser() throws Exception {
 
-        UserType user = service.users().oid(SystemObjectsType.USER_ADMINISTRATOR.value()).get();
+        UserType user = service.users().oid(SystemObjectsType.USER_ADMINISTRATOR.value()).read().get();
 
         System.out.println("User : " + user.getName());
 
@@ -57,7 +57,7 @@ public class TestRestPrismService {
     @Test
     public void test002getUserNotFound() throws Exception {
         try {
-            service.users().oid("not-exists").get();
+            service.users().oid("not-exists").read().get();
             AssertJUnit.fail("ObejctNotFoundException should be thrown.");
         } catch (ObjectNotFoundException e) {
             //this is expected
@@ -68,13 +68,13 @@ public class TestRestPrismService {
 
     @Test
     public void test003getSystemConfig() throws Exception {
-        SystemConfigurationType systemConfigurationType = service.systemConfigurations().oid(SystemObjectsType.SYSTEM_CONFIGURATION.value()).get();
+        SystemConfigurationType systemConfigurationType = service.systemConfigurations().oid(SystemObjectsType.SYSTEM_CONFIGURATION.value()).read().get();
         AssertJUnit.assertNotNull(systemConfigurationType);
     }
 
     @Test
     public void test004getTask() throws Exception {
-        TaskType taskType = service.tasks().oid(SystemObjectsType.TASK_CLEANUP.value()).get();
+        TaskType taskType = service.tasks().oid(SystemObjectsType.TASK_CLEANUP.value()).read().get();
         AssertJUnit.assertNotNull(taskType);
     }
 
@@ -82,7 +82,7 @@ public class TestRestPrismService {
     @Test
     public void test010addUser() throws Exception {
         UserType user = new UserType().name("00clientUser").givenName("given").familyName("family");
-        ObjectReference<UserType> ref = service.users().add(user).post(null);
+        ObjectReference<UserType> ref = service.users().add(user).post();
 
         AssertJUnit.assertNotNull(ref.getOid());
         userOid = ref.getOid();
@@ -93,7 +93,7 @@ public class TestRestPrismService {
         service.users().oid(userOid).delete();
 
         try {
-            UserType user = service.users().oid(userOid).get();
+            UserType user = service.users().oid(userOid).read().get();
             AssertJUnit.fail("Unexpected user found: " + user);
         } catch (ObjectNotFoundException e) {
             //expected

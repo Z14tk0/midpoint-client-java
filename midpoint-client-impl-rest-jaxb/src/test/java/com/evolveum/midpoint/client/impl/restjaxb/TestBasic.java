@@ -75,11 +75,15 @@ public class TestBasic extends AbstractTest {
         userBefore.setActivation(activation);
 
         // WHEN
-        ObjectReference<UserType> ref = service.users().add(userBefore).post(null);
+        ObjectReference<UserType> ref = service.users().add(userBefore)
+                .options()
+                    .limitPropagation()
+                    .isImport()
+                .post();
 
         // THEN
         assertNotNull("Null oid", ref.getOid());
-
+        assertEquals(List.of("limitPropagation", "isImport"), getMockRestService().getLastOptions());
         UserType userAfter = ref.get();
         Asserts.assertPoly(service, "Wrong name", "foo", userAfter.getName());
 
@@ -122,6 +126,18 @@ public class TestBasic extends AbstractTest {
         } catch (ObjectNotFoundException e) {
             // nothing to do. this is expected
         }
+
+        try {
+            service.users().oid("999")
+                    .remove()
+                    .options()
+                    .limitPropagation()
+                    .delete();
+            fail("Unexpected user deleted");
+        } catch (ObjectNotFoundException e) {
+            // nothing to do. this is expected
+            assertEquals(List.of("limitPropagation"), getMockRestService().getLastOptions());
+        }
     }
 
     @Test
@@ -139,15 +155,17 @@ public class TestBasic extends AbstractTest {
                     .modify()
                     .replace(modifications)
                     .add("givenName", util.createPoly("Charlie"))
-                    .post(null);
+                    .options()
+                    .reconcile()
+                    .post();
         } catch (ObjectNotFoundException e) {
             fail("Cannot modify user, user not found");
         }
-
+        assertEquals(List.of("reconcile"), getMockRestService().getLastOptions());
         UserType user = ref.get();
         assertEquals(user.getDescription(), "test description");
         assertEquals(util.getOrig(user.getGivenName()), "Charlie");
-        ref = service.users().oid("123").modify().delete("givenName", util.createPoly("Charlie")).post(null);
+        ref = service.users().oid("123").modify().delete("givenName", util.createPoly("Charlie")).post();
 
         assertEquals(ref.get().getGivenName(), null);
     }
@@ -178,6 +196,8 @@ public class TestBasic extends AbstractTest {
                 .item(assignemtTargetRef).ref(serviceRoleReferenceType)
                 .maxSize(1000)
                 .asc(namePath)
+                .build().options()
+                .resolveNames()
                 .get();
 
         // THEN
@@ -200,10 +220,20 @@ public class TestBasic extends AbstractTest {
         Service service = getService();
 
         // WHEN
-        SecurityPolicyType securityPolicyType = service.securityPolicies().oid("westernu-0002-0000-0000-000000000001").get();
-
+        SecurityPolicyType securityPolicyType =  service.securityPolicies().oid("westernu-0002-0000-0000-000000000001").read()
+                .options()
+                    .raw()
+                    .resolveNames()
+                .include("name")
+                .include("oid")
+                .exclude("jpegPhoto")
+                .get();
         // THEN
         assertNotNull("null security policy", securityPolicyType);
+        assertEquals(List.of(GetOption.RAW.apiValue(), GetOption.RESOLVE_NAMES.apiValue()), getMockRestService().getLastOptions());
+        assertEquals(List.of("name", "oid"), getMockRestService().getLastIncludes());
+        assertEquals(List.of("jpegPhoto"), getMockRestService().getLastExcludes());
+
     }
 
     @Test

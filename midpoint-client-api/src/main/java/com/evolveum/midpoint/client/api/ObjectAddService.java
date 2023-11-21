@@ -24,7 +24,15 @@ import java.util.List;
  * @author semancik
  *
  */
-public interface ObjectAddService<O extends ObjectType> extends
-        ExecuteOptionSupport.WithPost<ObjectReference<O>, ObjectAddService<O>> {
+public interface ObjectAddService<O extends ObjectType> extends Post<ObjectReference<O>> {
 
+    @Deprecated
+    ObjectAddService<O> addOption(String value);
+
+    @Deprecated
+    default ObjectAddService<O> overwrite() {
+        return addOption("overwrite");
+    }
+
+        ExecuteOptionSupport.WithPost<ObjectReference<O>> options();
 }

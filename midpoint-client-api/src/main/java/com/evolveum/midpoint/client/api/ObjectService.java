@@ -15,8 +15,7 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.client.api.verb.Delete;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
@@ -27,17 +26,43 @@ import java.util.List;
  * @author semancik
  *
  */
-public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> , ExecuteOptionSupport<ObjectService<O>> {
+public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> {
 
 	ObjectModifyService<O> modify() throws ObjectNotFoundException;
 
-	//TODO cleanup interface, options/include/exclude should be probably handled also in fluent style.
-    O get(List<String> options) throws ObjectNotFoundException;
+    ObjectReadService<O> read();
 
-    O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException;
+    ObjectRemoveService<O> remove();
 
+    /**
+     * Gets object.
+     *
+     *  Use {@link #read()} which allows you to specify get options in type safe way
+     *
+     * @return Object
+     * @throws ObjectNotFoundException If object is not found
+     */
+    @Override
+    O get() throws ObjectNotFoundException, SchemaException;
 
-    ObjectService<O> include(String path);
+    /**
+     * Gets object.
+     *
+     * @deprecated Use {@link #read()} which allows you to specify get options in type safe way
+     * @return Object
+     * @throws ObjectNotFoundException If object is not found
+     */
+    @Deprecated
+    O get(List<String> options) throws ObjectNotFoundException, SchemaException;
 
-    ObjectService<O> exclude(String path);
+    /**
+     * Gets object.
+     *
+     * @deprecated Use {@link #read()} which allows you to specify get options in type safe way
+     * @return Object
+     * @throws ObjectNotFoundException If object is not found
+     */
+    @Deprecated
+    O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException, SchemaException;
+;
 }

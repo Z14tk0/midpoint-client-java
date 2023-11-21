@@ -20,16 +20,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.evolveum.midpoint.client.api.*;
+
+import com.evolveum.midpoint.client.api.exception.*;
+
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.Response;
 
-import com.evolveum.midpoint.client.api.ObjectModifyService;
-import com.evolveum.midpoint.client.api.ObjectReference;
-import com.evolveum.midpoint.client.api.TaskFuture;
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.AuthorizationException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
-import com.evolveum.midpoint.client.api.exception.PartialErrorException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
@@ -41,13 +38,17 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
 
     private List<ItemDeltaType> modifications;
 
-    private List<String> options;
+    private ExecuteOptionsBuilder.WithPost<ObjectReference<O>> options = new ExecuteOptionsBuilder.WithPost<ObjectReference<O>>() {
 
-    public RestJaxbObjectModifyService(RestJaxbService service, Class<O> type, String oid, List<String> options)
-    {
+        @Override
+        public TaskFuture<ObjectReference<O>> apost() throws CommonException {
+            return RestJaxbObjectModifyService.this.apost();
+        }
+    };
+
+    public RestJaxbObjectModifyService(RestJaxbService service, Class<O> type, String oid) {
         super(service, type, oid);
         modifications = new ArrayList<>();
-        this.options = new ArrayList<>(options);
     }
 
     @Override
@@ -100,8 +101,9 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
     public TaskFuture<ObjectReference<O>> apost() throws ObjectNotFoundException {
 
         Map<String, List<String>> queryParams = null;
-        if (!getOptions().isEmpty()) {
-            queryParams = Map.of("options", getOptions());
+        var stringOptions = options.optionsAsStringList();
+        if (!stringOptions.isEmpty()) {
+            queryParams = Map.of("options", stringOptions);
         }
 
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid());
@@ -119,13 +121,7 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
     }
 
     @Override
-    public List<String> getOptions() {
+    public ExecuteOptionSupport.WithPost<ObjectReference<O>> options() {
         return options;
-    }
-
-    @Override
-    public ObjectModifyService<O> addOption(String option) {
-        options.add(option);
-        return self();
     }
 }

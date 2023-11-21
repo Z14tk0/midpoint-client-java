@@ -28,6 +28,8 @@ public class AbstractTest {
     private RestJaxbServiceUtil util;
     private Unmarshaller unmarshaller;
 
+    private MidpointMockRestService mockRestService;
+
     public Service getService(String username, String password, String endpoint) throws IOException {
         RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder().password(password);
         Service service = getService(serviceBuilder, AuthenticationType.BASIC, username, endpoint);
@@ -62,14 +64,18 @@ public class AbstractTest {
 
         JAXBContext jaxbCtx = createJaxbContext();
         sf.setProviders(Arrays.asList(new JaxbXmlProvider<>(jaxbCtx), new AuthenticationProvider()));
-
+        mockRestService = new MidpointMockRestService(jaxbCtx);
         sf.setResourceProvider(MidpointMockRestService.class,
-                new SingletonResourceProvider(new MidpointMockRestService(jaxbCtx), true));
+                new SingletonResourceProvider(mockRestService, true));
         sf.setAddress(endpoint);
 
 
         Server server = sf.create();
         return server;
+    }
+
+    public MidpointMockRestService getMockRestService() {
+        return mockRestService;
     }
 
     public <T> T unmarshallFromFile(Class<T> type, File file) throws IOException, JAXBException {

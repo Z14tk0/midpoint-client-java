@@ -1,6 +1,22 @@
+/*
+ * Copyright (c) 2023 Evolveum
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.evolveum.midpoint.client.api;
 
 import com.evolveum.midpoint.client.api.exception.CommonException;
+import com.evolveum.midpoint.client.api.verb.Delete;
 import com.evolveum.midpoint.client.api.verb.Post;
 
 import java.util.List;
@@ -9,16 +25,17 @@ import static com.evolveum.midpoint.client.api.ExecuteOption.*;
 public interface ExecuteOptionSupport<S extends ExecuteOptionSupport> {
 
 
-    default S addOption(ExecuteOption option) {
-        return addOption(option.apiValue());
-    }
+     S option(ExecuteOption option);
 
-    S addOption(String option);
+     default S option(String option) {
+        option(ExecuteOption.from(option));
+        return self();
+    }
 
     default S mergeOptions(List<String> options) {
         if (options != null) {
             for (var opt: options) {
-                addOption(opt);
+                option(opt);
             }
         }
         return self();
@@ -30,57 +47,52 @@ public interface ExecuteOptionSupport<S extends ExecuteOptionSupport> {
 
     List<String> getOptions();
 
-    interface WithPost<P,S extends WithPost<P,S>> extends ExecuteOptionSupport<S>, Post<P> {
+    interface WithPost<P> extends ExecuteOptionSupport<WithPost<P>>, Post<P> {
 
-        default TaskFuture<P> apost(List<String> options) throws CommonException {
-            mergeOptions(options);
-            return apost();
-        }
+    }
 
-        default P post(List<String> options) throws CommonException {
-            mergeOptions(options);
-            return post();
-        }
+    interface  WithDelete<P> extends ExecuteOptionSupport<WithDelete<P>>, Delete<P> {
+
     }
 
     default S raw() {
-        return addOption(RAW);
+        return option(RAW);
     }
 
     default S executeImmediatelyAfterApproval() {
-        return addOption(EXECUTE_IMMEDIATELY_AFTER_APPROVAL);
+        return option(EXECUTE_IMMEDIATELY_AFTER_APPROVAL);
     }
 
     default S force() {
-        return addOption(FORCE);
+        return option(FORCE);
     }
 
     default S pushChanges() {
-        return addOption(PUSH_CHANGES);
+        return option(PUSH_CHANGES);
     }
 
     default S noCrypt() {
-        return addOption(NO_CRYPT);
+        return option(NO_CRYPT);
     }
 
     default S overwrite() {
-        return addOption(OVERWRITE);
+        return option(OVERWRITE);
     }
 
     default S reconcile() {
-        return addOption(RECONCILE);
+        return option(RECONCILE);
     }
 
     default S isImport() {
-        return addOption(IS_IMPORT);
+        return option(IS_IMPORT);
     }
 
     default S limitPropagation() {
-        return addOption(LIMIT_PROPAGATION);
+        return option(LIMIT_PROPAGATION);
     }
 
     default S reevaluateSearchFilters() {
-        return addOption(REEVALUATE_SEARCH_FILTERS);
+        return option(REEVALUATE_SEARCH_FILTERS);
     }
 
 

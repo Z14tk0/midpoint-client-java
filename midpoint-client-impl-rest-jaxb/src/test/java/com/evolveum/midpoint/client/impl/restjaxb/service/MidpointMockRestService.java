@@ -83,6 +83,10 @@ public class MidpointMockRestService {
 	private RestJaxbServiceUtil util;
 	private JAXBContext jaxbCtx;
 
+    private List<String> lastIncludes;
+    private List<String> lastExcludes;
+    private List<String> lastOptions;
+
 	public MidpointMockRestService(JAXBContext jaxbCtx) {
 		this.jaxbCtx = jaxbCtx;
 		util = new RestJaxbServiceUtil(jaxbCtx);
@@ -154,8 +158,8 @@ public class MidpointMockRestService {
 	public <O extends ObjectType> Response addObject(@PathParam("type") String type, O object,
 			@QueryParam("options") List<String> options,
 			@Context UriInfo uriInfo, @Context MessageContext mc) {
-
-		String oid = object.getOid();
+        captureOptions(options);
+        String oid = object.getOid();
 		if (object.getOid() == null) {
 			oid = RandomStringUtils.random(5);
 			object.setOid(oid);
@@ -178,7 +182,7 @@ public class MidpointMockRestService {
 			@QueryParam("include") List<String> include,
 			@QueryParam("exclude") List<String> exclude,
 			@Context MessageContext mc){
-
+        captureOptions(options, include, exclude);
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Get object");
 		T objectType = (T) objectMap.get(type).get(id);
@@ -202,8 +206,8 @@ public class MidpointMockRestService {
 	                                                 @QueryParam("include") List<String> include,
 	                                                 @QueryParam("exclude") List<String> exclude,
 	                                                 @Context MessageContext mc){
-
-		OperationResultType result = new OperationResultType();
+        captureOptions(options, include, exclude);
+        OperationResultType result = new OperationResultType();
 		result.setOperation("Policy generate");
 
 		String policyOid = object.getPolicyItemDefinition().get(0).getValuePolicyRef().getOid();
@@ -350,8 +354,8 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 	                                                      @QueryParam("include") List<String> include,
 	                                                      @QueryParam("exclude") List<String> exclude,
 	                                                      @Context MessageContext mc) throws Exception {
-
-		OperationResultType result = new OperationResultType();
+        captureOptions(options, include, exclude);
+        OperationResultType result = new OperationResultType();
 		result.setOperation("Modify generate object");
 		UserType user = (UserType) objectMap.get(type).get(id);
 
@@ -395,8 +399,8 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 	                                                        ObjectModificationType object,
 	                                                        @QueryParam("options") List<String> options,
 	                                                        @Context UriInfo uriInfo, @Context MessageContext mc) throws Exception {
-
-		//TODO: Should we make this generic or does this satisfy our needs for the test case?
+        captureOptions(options);
+        //TODO: Should we make this generic or does this satisfy our needs for the test case?
 
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Modify object");
@@ -436,8 +440,8 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
                                                         @QueryParam("include") List<String> include,
                                                         @QueryParam("exclude") List<String> exclude,
                                                         @Context MessageContext mc){
-
-		OperationResultType result = new OperationResultType();
+        captureOptions(options, include, exclude);
+        OperationResultType result = new OperationResultType();
 		result.setOperation("Delete object");
 
         if (!objectMap.get(type).containsKey(id)) {
@@ -460,7 +464,8 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			@QueryParam("include") List<String> include,
 			@QueryParam("exclude") List<String> exclude,
 			@Context MessageContext mc){
-		OperationResultType result = new OperationResultType();
+        captureOptions(options, include, exclude);
+        OperationResultType result = new OperationResultType();
 		result.setOperation("Search objects");
 
 		ObjectListType resultList = new ObjectListType();
@@ -554,4 +559,27 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			throw new IllegalStateException(e);
 		}
 	}
+
+
+    void captureOptions(List<String> options) {
+        captureOptions(options, null, null);
+    }
+
+    void captureOptions(List<String> options, List<String> include, List<String> exclude) {
+        lastOptions = options;
+        lastIncludes = include;
+        lastExcludes = exclude;
+    }
+
+    public List<String> getLastExcludes() {
+        return lastExcludes;
+    }
+
+    public List<String> getLastIncludes() {
+        return lastIncludes;
+    }
+
+    public List<String> getLastOptions() {
+        return lastOptions;
+    }
 }

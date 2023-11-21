@@ -15,9 +15,8 @@
  */
 package com.evolveum.midpoint.client.impl.prism;
 
-import com.evolveum.midpoint.client.api.ObjectAddService;
-import com.evolveum.midpoint.client.api.ObjectReference;
-import com.evolveum.midpoint.client.api.TaskFuture;
+import com.evolveum.midpoint.client.api.*;
+import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.client.api.exception.ObjectAlreadyExistsException;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
@@ -45,6 +44,7 @@ public class RestPrismObjectAddService<O extends ObjectType> implements ObjectAd
     }
 
     @Override
+    @Deprecated
     public RestPrismObjectAddService<O> addOption(String value) {
         if (options == null) {
             options = new ArrayList<>();
@@ -54,8 +54,14 @@ public class RestPrismObjectAddService<O extends ObjectType> implements ObjectAd
     }
 
     @Override
-    public List<String> getOptions() {
-        return options;
+    public ExecuteOptionSupport.WithPost<ObjectReference<O>> options() {
+        return new ExecuteOptionsBuilder.WithPost<ObjectReference<O>>() {
+            @Override
+            public TaskFuture<ObjectReference<O>> apost() throws CommonException {
+                setOptions(this.optionsAsStringList());
+                return RestPrismObjectAddService.this.apost();
+            }
+        };
     }
 
     @Override

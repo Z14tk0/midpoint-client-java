@@ -18,11 +18,13 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.evolveum.midpoint.client.api.*;
+
+import com.evolveum.midpoint.client.api.exception.CommonException;
+
 import jakarta.ws.rs.core.Response;
 
-import com.evolveum.midpoint.client.api.ObjectAddService;
-import com.evolveum.midpoint.client.api.ObjectReference;
-import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.ObjectAlreadyExistsException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.exception.SystemException;
@@ -36,27 +38,39 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 public class RestJaxbObjectAddService<O extends ObjectType> extends AbstractObjectTypeWebResource<O> implements ObjectAddService<O> {
 
 	private final O object;
-    private final List<String> options = new ArrayList<>();
+    private final ExecuteOptionSupport.WithPost<ObjectReference<O>> options = new ExecuteOptionsBuilder.WithPost<ObjectReference<O>>() {
+        @Override
+        public TaskFuture<ObjectReference<O>> apost() throws ObjectAlreadyExistsException, ObjectNotFoundException {
+            return RestJaxbObjectAddService.this.apost(optionsAsStringList());
+        }
+    };
 
 	public RestJaxbObjectAddService(final RestJaxbService service, final Class<O> type, final O object) {
 		super(service, type);
 		this.object = object;
 	}
 
+
+
     @Override
     public RestJaxbObjectAddService<O> addOption(String value) {
-        options.add(value);
+        options().option(value);
         return this;
     }
 
     @Override
-    public List<String> getOptions() {
+    public ExecuteOptionSupport.WithPost<ObjectReference<O>> options() {
         return options;
     }
 
     @Override
-	public TaskFuture<ObjectReference<O>> apost() throws ObjectAlreadyExistsException, ObjectNotFoundException {
-		// TODO: item object
+	public TaskFuture<ObjectReference<O>> apost() throws CommonException {
+        return options().apost();
+    }
+
+    public TaskFuture<ObjectReference<O>> apost(List<String> options) throws ObjectAlreadyExistsException, ObjectNotFoundException {
+
+            // TODO: item object
 
 		// if object created (sync):
 		String restPath = Types.findType(getType()).getRestPath();

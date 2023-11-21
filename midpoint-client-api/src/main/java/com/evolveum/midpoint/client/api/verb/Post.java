@@ -70,5 +70,4 @@ public interface Post<T> {
      * @throws AuthorizationException
      */
     TaskFuture<T> apost() throws CommonException;
-
 }

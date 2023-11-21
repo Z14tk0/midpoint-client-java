@@ -51,10 +51,14 @@ public class TestTaskIntegration extends AbstractTest {
     public void test100addRecomputeTask() throws Exception {
         TaskType recomputeTask = createRecomputeTask(TaskExecutionStateType.RUNNABLE, TaskRecurrenceType.SINGLE);
 
-        ObjectReference<TaskType> taskType = service.tasks().add(recomputeTask).post(null);
+        ObjectReference<TaskType> taskType = service.tasks().add(recomputeTask).post();
         recomputeTaskOid = taskType.getOid();
 
-        TaskType taskAfter = service.tasks().oid(recomputeTaskOid).get(null, Collections.singletonList("nodeAsObserved"), null);
+        TaskType taskAfter = service.tasks().oid(recomputeTaskOid)
+                .read()
+                    .options()
+                        .include("nodeAsObserved")
+                    .get();
 
         assertNotNull("Node as observed should be set (task is running)", taskAfter.getNodeAsObserved());
         assertEquals("Unexpected execution status", TaskExecutionStateType.RUNNING, taskAfter.getExecutionState());
@@ -78,7 +82,10 @@ public class TestTaskIntegration extends AbstractTest {
         // wait a bit so the task manager can do its job
         Thread.sleep(5000);
 
-        TaskType taskAfter = service.tasks().oid(recomputeTaskOid).get(null, Collections.singletonList("nodeAsObserved"), null);
+        TaskType taskAfter = service.tasks().oid(recomputeTaskOid)
+                .read()
+                        .options().include("nodeAsObserved")
+                .get();
         assertEquals("Unexpected execution status", TaskExecutionStateType.RUNNING, taskAfter.getExecutionState());
         assertNotNull("Node as observed should be set (task is running)", taskAfter.getNodeAsObserved());
     }
@@ -91,7 +98,7 @@ public class TestTaskIntegration extends AbstractTest {
         Thread.sleep(5000);
 
         try {
-            service.tasks().oid(recomputeTaskOid).get(null, Collections.singletonList("nodeAsObserved"), null);
+            service.tasks().oid(recomputeTaskOid).read().options().include("nodeAsObserved").get();
             fail("Unexpected task found");
         } catch (ObjectNotFoundException e) {
             //expected

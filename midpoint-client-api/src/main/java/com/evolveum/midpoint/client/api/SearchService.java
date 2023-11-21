@@ -33,6 +33,8 @@ public interface SearchService<O extends ObjectType> extends Get<SearchResult<O>
 
 	FilterEntryOrEmpty<O> queryFor(Class<O> type);
 
+    GetOptionSupport.WithGet<SearchResult<O>> options();
+
     SearchResult<O> get(List<String> options) throws ObjectNotFoundException;
 
 }

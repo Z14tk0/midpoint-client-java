@@ -15,8 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import com.evolveum.midpoint.client.api.ObjectModifyService;
-import com.evolveum.midpoint.client.api.ObjectService;
+import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
@@ -29,73 +28,44 @@ import java.util.List;
  */
 public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectWebResource<O> implements ObjectService<O> {
 
-    List<String> options = new ArrayList<>();
-    List<String> include = new ArrayList<>();
-    List<String> exclude = new ArrayList<>();
-
-	public RestJaxbObjectService(final RestJaxbService service, final Class<O> type, final String oid) {
-		super(service, type, oid);
+    public RestJaxbObjectService(final RestJaxbService service, final Class<O> type, final String oid) {
+        super(service, type, oid);
 	}
 
-	@Override
+    @Deprecated
+    @Override
 	public O get() throws ObjectNotFoundException {
 		return get(null);
 	}
 
-	@Override
-	public O get(List<String> options) throws ObjectNotFoundException {
+    @Deprecated
+    @Override
+    public O get(List<String> options) throws ObjectNotFoundException {
 		return get(options, null, null);
 	}
 
-	@Override
-	public O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException {
-
-        var mergedOptions = new ArrayList<>(this.options);
-        var mergedInclude = new ArrayList<>(this.include);
-        var mergedExclude = new ArrayList<>(this.exclude);
-        if (options != null) {
-            mergedOptions.addAll(options);
-        }
-        if (include != null) {
-            mergedInclude.addAll(include);
-        }
-        if (exclude != null) {
-            mergedExclude.addAll(exclude);
-        }
-        return getService().getObject(getType(), getOid(), mergedOptions, mergedInclude, mergedExclude);
+    @Deprecated
+    @Override
+    public O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException {
+        return getService().getObject(getType(), getOid(), options, include, exclude);
 	}
 
 	@Override
-	public void delete() throws ObjectNotFoundException
-	{
+	public void delete() throws ObjectNotFoundException {
 		 getService().deleteObject(getType(), getOid());
 	}
 
 	@Override
 	public ObjectModifyService<O> modify() throws ObjectNotFoundException {
-		return new RestJaxbObjectModifyService<>(getService(), getType(), getOid(), options);
+		return new RestJaxbObjectModifyService<>(getService(), getType(), getOid());
 	}
 
     @Override
-    public ObjectService<O> addOption(String option) {
-        options.add(option);
-        return this;
+    public ObjectReadService<O> read() {
+        return new RestJaxbObjectReadService<>(getService(), getType(), getOid());
     }
 
-    @Override
-    public List<String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public ObjectService<O> include(String path) {
-        include.add(path);
-        return this;
-    }
-
-    @Override
-    public ObjectService<O> exclude(String path) {
-        exclude.add(path);
-        return this;
+    public ObjectRemoveService<O> remove() {
+        return new RestJaxbObjectRemoveService<>(getService(), getType(), getOid());
     }
 }

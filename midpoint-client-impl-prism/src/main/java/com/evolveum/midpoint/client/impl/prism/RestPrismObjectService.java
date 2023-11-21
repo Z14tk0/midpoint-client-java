@@ -19,8 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.evolveum.midpoint.client.api.ObjectModifyService;
-import com.evolveum.midpoint.client.api.ObjectService;
+import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
 import com.evolveum.midpoint.schema.result.OperationResult;
@@ -34,10 +33,6 @@ import org.apache.hc.core5.http.HttpStatus;
 public class RestPrismObjectService<O extends ObjectType> extends CommonPrismService implements ObjectService<O> {
 
     private String oid;
-
-    private List<String> include = new ArrayList<>();
-    private List<String> exclude = new ArrayList<>();
-    private List<String> options = new ArrayList<>();
 
     public RestPrismObjectService(RestPrismService service, ObjectTypes type, String oid) {
         super(service, type);
@@ -58,6 +53,40 @@ public class RestPrismObjectService<O extends ObjectType> extends CommonPrismSer
     @Override
     public ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException {
         throw new UnsupportedOperationException("Not impelemted yet");
+    }
+
+    @Override
+    public ObjectReadService<O> read() {
+        return new ObjectReadService<O>() {
+            @Override
+            public GetOptionSupport.WithGet<O> options() {
+                return null;
+            }
+
+            @Override
+            public O get() throws ObjectNotFoundException, SchemaException, AuthenticationException, AuthorizationException, InternalServerErrorException {
+                return getService().getObject(getType(), oid);
+            }
+        };
+    }
+
+    @Override
+    public ObjectRemoveService<O> remove() {
+        return new ObjectRemoveService<O>() {
+            @Override
+            public ExecuteOptionSupport.WithDelete<O> options() {
+                return null;
+            }
+
+            @Override
+            public void delete() throws ObjectNotFoundException, AuthenticationException, InternalServerErrorException {
+                try {
+                    getService().deleteObject(getType(), getOid());
+                } catch (SchemaException e) { // TODO add to methid signature?
+                    throw new SystemException(e.getMessage(), e);
+                }
+            }
+        };
     }
 
     @Override
@@ -84,28 +113,6 @@ public class RestPrismObjectService<O extends ObjectType> extends CommonPrismSer
         return oid;
     }
 
-    @Override
-    public ObjectService<O> exclude(String path) {
-        exclude.add(path);
-        return this;
-    }
-
-    @Override
-    public ObjectService<O> addOption(String option) {
-        options.add(option);
-        return this;
-    }
-
-    @Override
-    public ObjectService<O> include(String path) {
-        include.add(path);
-        return this;
-    }
-
-    @Override
-    public List<String> getOptions() {
-        return options;
-    }
 }
 
 

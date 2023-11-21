@@ -348,7 +348,15 @@ public class RestJaxbService implements Service {
     }
 
     <O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws BadRequestException, ObjectNotFoundException, AuthenticationException, InternalServerErrorException {
+        deleteObject(type, oid, null);
+    }
+    <O extends ObjectType> void deleteObject(final Class<O> type, final String oid, List<String> options) throws BadRequestException, ObjectNotFoundException, AuthenticationException, InternalServerErrorException {
         String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
+
+        client.resetQuery();
+        if (options != null && !options.isEmpty()) {
+            addQueryParameter("options", options);
+        }
         Response response = client.replacePath(urlPrefix).delete();
 
         //TODO: Looks like midPoint returns a 204 and not a 200 on success

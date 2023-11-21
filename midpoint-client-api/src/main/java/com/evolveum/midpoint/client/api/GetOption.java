@@ -15,26 +15,21 @@
  */
 package com.evolveum.midpoint.client.api;
 
-public enum ExecuteOption {
+public enum GetOption {
+    RAW("raw"),
+    NO_FETCH("noFetch"),
+    NO_DISCOVERY("noDiscovery"),
+    RESOLVE_NAMES("resolveNames"),
+    DISTINCT("distinct");
 
-    RAW("raw"), // add, get, modify
-    EXECUTE_IMMEDIATELY_AFTER_APPROVAL("executeImmediatelyAfterApproval"), // modify, delete
-    FORCE("force"), //
-    PUSH_CHANGES("pushChanges"),
-    NO_CRYPT("noCrypt"),
-    OVERWRITE("overwrite"),
-    RECONCILE("reconcile"),
-    IS_IMPORT("isImport"),
-    LIMIT_PROPAGATION("limitPropagation"),
-    REEVALUATE_SEARCH_FILTERS("reevaluateSearchFilters");
 
     private final String apiValue;
 
-    ExecuteOption(String value) {
+    GetOption(String value) {
         this.apiValue = value;
     }
 
-    public static ExecuteOption from(String option) {
+    public static GetOption from(String option) {
         for (var maybe : values()) {
             if (maybe.apiValue.equals(option)) {
                 return maybe;

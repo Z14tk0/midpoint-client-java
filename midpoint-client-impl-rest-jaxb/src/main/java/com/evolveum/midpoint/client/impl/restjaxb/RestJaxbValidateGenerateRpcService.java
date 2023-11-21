@@ -36,7 +36,6 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 
 	private RestJaxbService service;
 	private PolicyItemsDefinitionType policyItemDefinition;
-
 	private String path;
 
 
@@ -51,7 +50,7 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 		this.policyItemDefinition = policyItemDefinition;
 	}
 
-	@Override
+    @Override
 	public TaskFuture<PolicyItemsDefinitionType> apost() throws CommonException {
 
 		Response response = service.post(path, policyItemDefinition);
