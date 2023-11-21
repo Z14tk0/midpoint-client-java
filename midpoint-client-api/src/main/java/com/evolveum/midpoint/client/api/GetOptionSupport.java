@@ -15,11 +15,8 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.client.api.verb.Post;
-
-import java.util.List;
 
 public interface GetOptionSupport<S extends GetOptionSupport<S>> {
 
