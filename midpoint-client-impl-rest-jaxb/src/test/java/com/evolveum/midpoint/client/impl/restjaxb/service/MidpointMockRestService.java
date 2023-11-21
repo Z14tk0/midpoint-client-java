@@ -143,7 +143,7 @@ public class MidpointMockRestService {
 
 	private StringLimitType createStringLimitType(String allowedChars, Boolean mustBeFirst, Integer minOccurs, Integer maxOccurs){
 		StringLimitType stringLimitType = new StringLimitType();
-		CharacterClassType characterClasss = new CharacterClassType();
+        CharacterClassOrRefType characterClasss = new CharacterClassOrRefType();
 		characterClasss.setValue(allowedChars);
 		stringLimitType.setCharacterClass(characterClasss);
 		stringLimitType.setMustBeFirst(mustBeFirst);

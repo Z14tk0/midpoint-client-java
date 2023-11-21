@@ -27,6 +27,8 @@ import java.util.Set;
 import javax.naming.CommunicationException;
 import javax.xml.namespace.QName;
 
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+
 import jakarta.xml.bind.JAXBElement;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,15 +39,6 @@ import com.evolveum.midpoint.client.api.exception.ConfigurationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.evolveum.midpoint.client.api.exception.SecurityViolationException;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.CharacterClassType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.EntryType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.LimitationsType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ParamsType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.StringLimitType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.StringPolicyType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.PolyStringType;
 
@@ -136,7 +129,7 @@ public class ValuePolicyProcessor {
 		return OperationResultUtil.isAcceptable(result);
 	}
 
-	private HashSet<String> getValidCharacters(CharacterClassType characterClassType,
+	private HashSet<String> getValidCharacters(CharacterClassOrRefType characterClassType,
 			ValuePolicyType passwordPolicy) {
 		if (null != characterClassType.getValue()) {
 			return new HashSet<String>(stringTokenizer(characterClassType.getValue()));
