@@ -27,10 +27,10 @@ import org.apache.cxf.helpers.IOUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;

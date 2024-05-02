@@ -18,10 +18,21 @@ package com.evolveum.midpoint.client.api;
 import com.evolveum.midpoint.client.api.verb.Post;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
+import java.util.List;
+
 /**
  * @author semancik
  *
  */
 public interface ObjectAddService<O extends ObjectType> extends Post<ObjectReference<O>> {
 
+    @Deprecated
+    ObjectAddService<O> addOption(String value);
+
+    @Deprecated
+    default ObjectAddService<O> overwrite() {
+        return addOption("overwrite");
+    }
+
+        ExecuteOptionSupport.WithPost<ObjectReference<O>> options();
 }

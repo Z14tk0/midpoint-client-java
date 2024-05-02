@@ -15,11 +15,11 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import com.evolveum.midpoint.client.api.ObjectModifyService;
-import com.evolveum.midpoint.client.api.ObjectService;
+import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,28 +28,30 @@ import java.util.List;
  */
 public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectWebResource<O> implements ObjectService<O> {
 
-	public RestJaxbObjectService(final RestJaxbService service, final Class<O> type, final String oid) {
-		super(service, type, oid);
+    public RestJaxbObjectService(final RestJaxbService service, final Class<O> type, final String oid) {
+        super(service, type, oid);
 	}
 
-	@Override
+    @Deprecated
+    @Override
 	public O get() throws ObjectNotFoundException {
 		return get(null);
 	}
 
-	@Override
-	public O get(List<String> options) throws ObjectNotFoundException {
+    @Deprecated
+    @Override
+    public O get(List<String> options) throws ObjectNotFoundException {
 		return get(options, null, null);
 	}
 
-	@Override
-	public O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException {
-		return getService().getObject(getType(), getOid(), options, include, exclude);
+    @Deprecated
+    @Override
+    public O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException {
+        return getService().getObject(getType(), getOid(), options, include, exclude);
 	}
 
 	@Override
-	public void delete() throws ObjectNotFoundException
-	{
+	public void delete() throws ObjectNotFoundException {
 		 getService().deleteObject(getType(), getOid());
 	}
 
@@ -57,4 +59,18 @@ public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectW
 	public ObjectModifyService<O> modify() throws ObjectNotFoundException {
 		return new RestJaxbObjectModifyService<>(getService(), getType(), getOid());
 	}
+
+    @Override
+    public ObjectReadService<O> read() {
+        return new RestJaxbObjectReadService<>(getService(), getType(), getOid());
+    }
+
+    public ObjectRemoveService<O> remove() {
+        return new RestJaxbObjectRemoveService<>(getService(), getType(), getOid());
+    }
+
+    @Override
+    public ObjectReplaceService<O> replace(O object) {
+        return new RestJaxbObjectReplaceService<>(getService(), getType(), getOid(), object);
+    }
 }

@@ -22,6 +22,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import com.evolveum.prism.xml.ns._public.query_3.QueryType;
+
 import org.w3c.dom.Element;
 
 import com.evolveum.midpoint.client.api.SearchService;
@@ -102,8 +104,12 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 //		return new RestJaxbSearchService<O>(queryForService, type, query);
 	}
 
+    @Override
+    public SearchService<O> build(QueryType query) {
+        return null;
+    }
 
-	@Override
+    @Override
 	public MatchingRuleEntry<O> eq(Object... values) {
 		Element equal = queryForService.getDomSerializer().createEqualFilter(itemPath, Arrays.asList(values));
 		return new RestJaxbQueryBuilder<O>(this, equal, owner);
@@ -206,7 +212,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 
 	@Override
 	public MatchingRuleEntry<O> endsWith(Object value) {
-		Element substring = queryForService.getDomSerializer().createSubstringFilter(itemPath, value, true, false);
+		Element substring = queryForService.getDomSerializer().createSubstringFilter(itemPath, value, false, true);
 		return new RestJaxbQueryBuilder<O>(this, substring, owner);
 	}
 
@@ -371,17 +377,6 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 	@Override
 	public FilterExit<O> desc(ItemPathType path) {
 		return finish().desc(path);
-	}
-
-	@Override
-	public FilterExit<O> group(QName... names) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public FilterExit<O> group(ItemPathType path) {
-		return finish().group(path);
 	}
 
 	@Override

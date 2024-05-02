@@ -15,20 +15,24 @@
  */
 package com.evolveum.midpoint.client.api;
 
+import java.util.List;
 import java.util.Map;
 
+import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.client.api.verb.Post;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
 /**
  * @author jakmor
  */
-public interface ObjectModifyService <O extends ObjectType> extends Post<ObjectReference<O>>
-{
+public interface ObjectModifyService <O extends ObjectType> extends Post<ObjectReference<O>> {
     ObjectModifyService<O> add(String path, Object value);
     ObjectModifyService<O> add(Map<String, Object> modifications);
     ObjectModifyService<O> replace(String path, Object value);
     ObjectModifyService<O> replace(Map<String, Object> modifications);
     ObjectModifyService<O> delete(String path, Object value);
     ObjectModifyService<O> delete(Map<String, Object> modifications);
+
+    ExecuteOptionSupport.WithPost<ObjectReference<O>> options();
+
 }

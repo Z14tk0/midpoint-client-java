@@ -15,13 +15,15 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.TaskOperationService;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
+
+import java.util.List;
 
 public class RestJaxbTaskOperationService implements TaskOperationService {
 
@@ -45,6 +47,8 @@ public class RestJaxbTaskOperationService implements TaskOperationService {
             case 200:
             case 202:
             case 204:
+            case 240:
+            case 250:
                 RestJaxbObjectReference<TaskType> task = new RestJaxbObjectReference<>(service, TaskType.class, oid);
                 return new RestJaxbCompletedFuture<>(task);
             default:

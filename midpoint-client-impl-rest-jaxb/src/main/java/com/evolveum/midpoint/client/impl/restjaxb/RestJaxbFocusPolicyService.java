@@ -15,7 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.FocusPolicyService;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
@@ -37,6 +37,8 @@ public class RestJaxbFocusPolicyService<T> implements FocusPolicyService<T> {
 
         switch (response.getStatus()) {
             case 200:
+            case 240:
+            case 250:
                 return response.readEntity(expectedType);
             default:
                 throw new IllegalStateException("Unexpected value: " + response.getStatus());

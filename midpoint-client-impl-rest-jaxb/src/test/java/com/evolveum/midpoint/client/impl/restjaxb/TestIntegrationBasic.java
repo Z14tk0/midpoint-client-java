@@ -14,6 +14,17 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.namespace.QName;
 
+import com.evolveum.midpoint.client.api.AuthenticationChallenge;
+import com.evolveum.midpoint.client.api.Service;
+import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.SchemaException;
+import com.evolveum.midpoint.client.api.query.AtomicFilterExit;
+import com.evolveum.midpoint.client.api.query.ConditionEntry;
+import com.evolveum.prism.xml.ns._public.query_3.PagingType;
+import com.evolveum.prism.xml.ns._public.query_3.QueryType;
+import com.evolveum.prism.xml.ns._public.query_3.SearchFilterType;
+import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
+
 import org.apache.commons.lang3.StringUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
@@ -47,6 +58,12 @@ public class TestIntegrationBasic extends AbstractTest {
     private static final File SCRIPT_GENERATE_PASSWORD = new File(REQUEST_DIR, "request-script-generate-passwords.xml");
     private static final File SCRIPT_MODIFY_VALID_TO = new File(REQUEST_DIR, "request-script-modify-validTo.xml");
 
+    private static final File USER_GUYBRUSH_FILE = new File(TEST_DIR, "user-guybrush.xml");
+    private static final String USER_GUYBRUSH_OID = "c0c010c0-d34d-b33f-f00d-111111111116";
+    private static final String USER_GUYBRUSH_NAME = "guybrush";
+
+    private static final File SECURITY_POLICY_FILE = new File(TEST_DIR, "security-policy-secQ.xml");
+    private static final String SECURITY_POLICY_OID = "300b4418-234e-4dbc-ae09-7216c8ea9055";
     private RestJaxbService service;
 
     @BeforeClass
@@ -98,7 +115,6 @@ public class TestIntegrationBasic extends AbstractTest {
         assertNull(credentialsPolicyType.getSecurityQuestions());
         assertNull(credentialsPolicyType.getDefault());
         assertEquals(0, credentialsPolicyType.getNonce().size(), "No nonce configuration expected");
-
     }
 
     private Duration createDuration(String lexicalRepresentation) throws DatatypeConfigurationException {
@@ -285,6 +301,20 @@ public class TestIntegrationBasic extends AbstractTest {
         assertNull("No query should be here", getQuery(service));
     }
 
+    //TODO finish test, MID-6851
+    @Test
+    public void test490modifyReplaceNull() throws Exception {
+        service.users().oid(USER_JACK_OID).modify().replace("assignment[1]/activation/validFrom", null).post();
+    }
+
+    @Test
+    public void test495replaceUser() throws Exception {
+        UserType user = new UserType();
+        user.setOid(USER_JACK_OID);
+        user.setName(service.util().createPoly("jack"));
+        service.users().oid(USER_JACK_OID).replace(user).put();
+    }
+
     @Test
     public void test500deleteUserJack() throws Exception {
         service.users().oid(USER_JACK_OID).delete();
@@ -300,7 +330,7 @@ public class TestIntegrationBasic extends AbstractTest {
     }
 
     @Test
-    public void test510deteleOrg300() throws Exception {
+    public void test510deleteOrg300() throws Exception {
         service.orgs().oid(test300oid).delete();
 
         try {
@@ -314,7 +344,7 @@ public class TestIntegrationBasic extends AbstractTest {
     }
 
     @Test
-    public void test510deteleOrg310() throws Exception {
+    public void test510deleteOrg310() throws Exception {
         service.orgs().oid(test310oid).delete();
 
         try {
@@ -328,7 +358,7 @@ public class TestIntegrationBasic extends AbstractTest {
     }
 
     @Test
-    public void test510deteleOrg320() throws Exception {
+    public void test510deleteOrg320() throws Exception {
         service.orgs().oid(test320oid).delete();
 
         try {
@@ -339,6 +369,295 @@ public class TestIntegrationBasic extends AbstractTest {
         }
 
         assertNull("No query should be here", getQuery(service));
+    }
+
+    /**
+     * Test for MID-7459, import attached objects from Jira issue before test run
+     */
+    @Test(enabled = false) // enable after the midPoint is set up appropriately
+    public void test600searchDistinct() throws Exception {
+        Service service2 = getService("pavol", "western", ENDPOINT_ADDRESS);
+        SearchResult<UserType> users = service2.users().search().queryFor(UserType.class)
+                .item(createAssignmentTargetRefPath())
+                    .ref("be1a87e3-67ae-4ff9-bb84-95a4ce2ba068")
+                .and()
+                .item(createArtMovementPath())
+                    .eq("96658ae1-2b9e-4189-b450-399d6d924889")
+                .build().get(Arrays.asList("distinct"));
+
+        for (UserType user : users) {
+            System.out.println("user: " + service.util().getOrig(user.getName()));
+        }
+        assertEquals(users.size(), 10);
+    }
+
+    @Test
+    public void test610searchUserFilterQuery() throws Exception {
+        Service service = getService();
+
+        QueryType query = new QueryType();
+        PagingType pagingType = new PagingType();
+        pagingType.setMaxSize(1);
+        pagingType.setOffset(0);
+        query.setPaging(pagingType);
+        SearchFilterType searchFilterType = new SearchFilterType();
+        searchFilterType.setText("name contains \"admin\" or familyName startsWith \"X\"");
+        query.setFilter(searchFilterType);
+
+        SearchResult<UserType> users = service.users().search()
+                .queryFor(UserType.class)
+                .build(query)
+                .options()
+                .resolveNames()
+                .get();
+
+        assertEquals(users.size(), 1);
+    }
+
+
+    @Test
+    public void test700addSecurityPolicy() throws Exception {
+        SecurityPolicyType securityPolicyType = unmarshallFromFile(SecurityPolicyType.class, SECURITY_POLICY_FILE);
+
+        service.securityPolicies().add(securityPolicyType).post();
+
+        SecurityPolicyType securityPolicyAfter = service.securityPolicies().oid(SECURITY_POLICY_OID).get();
+        assertNotNull(securityPolicyAfter);
+        AuthenticationsPolicyType authentication = securityPolicyAfter.getAuthentication();
+        assertNotNull(authentication);
+
+        assertTrue(!authentication.getModules().getHttpSecQ().isEmpty());
+    }
+
+    @Test
+    public void test701modifySystemConfigSecurityPolicy() throws Exception {
+
+        ObjectReferenceType securityPolicyRef = new ObjectReferenceType();
+        securityPolicyRef.setOid(SECURITY_POLICY_OID);
+        securityPolicyRef.setType(Types.SECURITY_POLICIES.getTypeQName());
+
+        service.systemConfigurations()
+                .oid(SystemObjectsType.SYSTEM_CONFIGURATION.value())
+                .modify()
+                .replace("globalSecurityPolicyRef", securityPolicyRef)
+                .post();
+
+        SystemConfigurationType systemConfigurationType = service.systemConfigurations().oid(SystemObjectsType.SYSTEM_CONFIGURATION.value()).get();
+        assertNotNull(systemConfigurationType);
+
+        ObjectReferenceType globalSecurityPolicy = systemConfigurationType.getGlobalSecurityPolicyRef();
+        assertNotNull(globalSecurityPolicy);
+        assertEquals(globalSecurityPolicy.getOid(), SECURITY_POLICY_OID);
+    }
+
+    @Test
+    public void test710addUserGuybrush() throws Exception {
+        UserType userGuybrush= unmarshallFromFile(UserType.class, USER_GUYBRUSH_FILE);
+
+        ObjectReference<UserType> user = service.users().add(userGuybrush).post();
+
+        UserType guybrushAfter = user.get();
+        assertNotNull(guybrushAfter.getCredentials().getSecurityQuestions());
+    }
+
+    @Test
+    public void test720securityQuestionsAuthenticationFailure() throws Exception {
+        RestJaxbServiceBuilder builder = new RestJaxbServiceBuilder();
+
+        List<SecurityQuestionAnswer> answers = new ArrayList<>();
+        SecurityQuestionAnswer answer = new SecurityQuestionAnswer();
+        answer.setQid("id1");
+        answer.setQans("wrong answer");
+        answers.add(answer);
+
+
+        builder = builder.url(ENDPOINT_ADDRESS)
+                .username(USER_GUYBRUSH_NAME)
+                .authentication(AuthenticationType.SECQ)
+                .authenticationChallenge(answers);
+
+        RestJaxbService service = builder.build();
+
+        try {
+            service.users().oid(SystemObjectsType.USER_ADMINISTRATOR.value()).get();
+            fail("authentication should fail");
+        } catch (AuthenticationException ex) {
+            return;
+        }
+
+        fail("Should fail with authentication exception");
+    }
+
+    @Test
+    public void test730securityQuestionsAuthenticationSuccess() throws Exception {
+        RestJaxbServiceBuilder builder = new RestJaxbServiceBuilder();
+
+        List<SecurityQuestionAnswer> answers = new ArrayList<>();
+        SecurityQuestionAnswer answer = new SecurityQuestionAnswer();
+        answer.setQid("id1");
+        answer.setQans("I'm pretty good, thanks for AsKinG");
+        answers.add(answer);
+
+
+        builder = builder.url(ENDPOINT_ADDRESS)
+                .username(USER_GUYBRUSH_NAME)
+                .authentication(AuthenticationType.SECQ)
+                .authenticationChallenge(answers);
+
+        RestJaxbService service = builder.build();
+
+        try {
+            service.users().oid(SystemObjectsType.USER_ADMINISTRATOR.value()).get();
+        } catch (AuthenticationException ex) {
+            fail("authentication should be successful");
+        }
+    }
+
+    @Test
+    public void test740securityQuestionsAuthenticationChallenge() throws Exception {
+        RestJaxbServiceBuilder builder = new RestJaxbServiceBuilder();
+
+        builder = builder.url(ENDPOINT_ADDRESS)
+                .username(USER_GUYBRUSH_NAME)
+                .authentication(AuthenticationType.SECQ);
+//                .authenticationChallenge(answers);
+
+        RestJaxbService service = builder.build();
+
+        try {
+            service.users().oid(SystemObjectsType.USER_ADMINISTRATOR.value()).get();
+            fail("authentication should fail");
+        } catch (AuthenticationException ex) {
+
+        }
+
+        AuthenticationChallenge challenge = service.getAuthenticationManager().getChallenge();
+        assertTrue(challenge instanceof SecurityQuestionChallenge);
+
+        SecurityQuestionChallenge secQchallenge = (SecurityQuestionChallenge) challenge;
+        List<SecurityQuestionAnswer> answers = secQchallenge.getAnswer();
+        assertTrue(answers.size() == 2);
+
+        SecurityQuestionAnswer qa1 = answers.get(0);
+        assertEquals("id1", qa1.getQid());
+        assertEquals("How are you?", qa1.getQtxt());
+
+        SecurityQuestionAnswer qa2 = answers.get(1);
+        assertEquals("id2", qa2.getQid());
+        assertEquals("What's your favorite color?", qa2.getQtxt());
+
+        //setup answers and try again
+        qa1.setQans("I'm pretty good, thanks for AsKinG");
+        qa2.setQans("I do NOT have FAVORITE c0l0r!");
+
+        service = (RestJaxbService) getService(USER_GUYBRUSH_NAME, ENDPOINT_ADDRESS, answers);
+
+        try {
+            service.users().oid(SystemObjectsType.USER_ADMINISTRATOR.value()).get();
+
+        } catch (AuthenticationException ex) {
+            fail("authentication should be successful");
+        }
+    }
+
+    @Test
+    public void test750deleteUserGuybrush() throws Exception {
+        service.users().oid(USER_GUYBRUSH_OID).delete();
+
+        try {
+            UserType guybrushAfter = service.users().oid(USER_GUYBRUSH_OID).get();
+            fail("Unexpected user guybrush found");
+        } catch (ObjectNotFoundException e) {
+            //expected
+        }
+
+    }
+
+    @Test
+    public void test760modifySystemConfigSecurityPolicy() throws Exception {
+
+        ObjectReferenceType securityPolicyRef = new ObjectReferenceType();
+        securityPolicyRef.setOid(SystemObjectsType.SECURITY_POLICY.value());
+        securityPolicyRef.setType(Types.SECURITY_POLICIES.getTypeQName());
+
+        service.systemConfigurations()
+                .oid(SystemObjectsType.SYSTEM_CONFIGURATION.value())
+                .modify()
+                .replace("globalSecurityPolicyRef", securityPolicyRef)
+                .post();
+
+        SystemConfigurationType systemConfigurationType = service.systemConfigurations().oid(SystemObjectsType.SYSTEM_CONFIGURATION.value()).get();
+        assertNotNull(systemConfigurationType);
+
+        ObjectReferenceType globalSecurityPolicy = systemConfigurationType.getGlobalSecurityPolicyRef();
+        assertNotNull(globalSecurityPolicy);
+        assertEquals(globalSecurityPolicy.getOid(), SystemObjectsType.SECURITY_POLICY.value());
+
+        //TODO how to clear the env properly?
+        service.securityPolicies().oid(SECURITY_POLICY_OID).delete();
+    }
+
+    @Test
+    public void test770SearchEqPoly() throws SchemaException, ObjectNotFoundException {
+        assertFound(searchSystemConfigurationByName().eq("SystemConfiguration"));
+        assertNotFound(searchSystemConfigurationByName().eq("systemconfiguration"));
+
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration"));
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1"));
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration"));
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration").matchingStrict());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1").matchingStrict());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration").matchingStrict());
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration").matchingOrig());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1").matchingOrig());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration").matchingOrig());
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration").matchingNorm());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1").matchingNorm());
+        assertFound(searchSystemConfigurationByName().eqPoly("systemconfiguration").matchingNorm());
+
+        // MidPoint recomputes the "norm" value, so its value does not matter in any way.
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration", "xxx"));
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1", "xxx"));
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration", "xxx"));
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration", "xxx").matchingStrict());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1", "xxx").matchingStrict());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration", "xxx").matchingStrict());
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration", "xxx").matchingOrig());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1", "xxx").matchingOrig());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("systemconfiguration", "xxx").matchingOrig());
+        assertFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration", "xxx").matchingNorm());
+        assertNotFound(searchSystemConfigurationByName().eqPoly("SystemConfiguration1", "xxx").matchingNorm());
+        assertFound(searchSystemConfigurationByName().eqPoly("systemconfiguration", "xxx").matchingNorm());
+    }
+
+    private void assertFound(AtomicFilterExit<SystemConfigurationType> entry) throws SchemaException, ObjectNotFoundException {
+        SearchResult<SystemConfigurationType> result = entry.get();
+        assertEquals(result.size(), 1);
+        assertEquals(service.util().getOrig(result.get(0).getName()), "SystemConfiguration");
+    }
+
+    private void assertNotFound(AtomicFilterExit<SystemConfigurationType> entry) throws SchemaException, ObjectNotFoundException {
+        SearchResult<SystemConfigurationType> result = entry.get();
+        assertEquals(result.size(), 0);
+    }
+
+    private ConditionEntry<SystemConfigurationType> searchSystemConfigurationByName() {
+        var name = new ItemPathType();
+        name.setValue("name");
+
+        return service.systemConfigurations().search()
+                .queryFor(SystemConfigurationType.class)
+                .item(name);
+    }
+
+    private ItemPathType createAssignmentTargetRefPath() {
+        return service.util()
+                .createItemPathType(new QName(SchemaConstants.NS_COMMON, "assignment"), new QName(SchemaConstants.NS_TYPES, "targetRef"));
+    }
+
+    private ItemPathType createArtMovementPath() {
+        return service.util()
+                .createItemPathType(new QName(SchemaConstants.NS_COMMON, "extension"), new QName("http://whatever.com/my", "artMovement"));
     }
 
     private RestJaxbService getService() throws IOException {

@@ -19,9 +19,12 @@ import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.SearchService;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.AuthorizationException;
+import com.evolveum.midpoint.client.api.exception.InternalServerErrorException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 
 /**
  *
@@ -39,6 +42,8 @@ public interface QueryExit<O extends ObjectType> extends Get<SearchResult<O>> {
 	 */
 	SearchService<O> build();
 
+    SearchService<O> build(QueryType query);
+
 //	public ConditionEntry<O> item(ItemPathType itemPath);
 //	public ConditionEntry<O> item(QName... qnames);
 
@@ -51,7 +56,7 @@ public interface QueryExit<O extends ObjectType> extends Get<SearchResult<O>> {
 	 * To:   r.query().item(x).eq(y).get();
 	 * @throws AuthenticationException
 	 */
-	default SearchResult<O> get() throws ObjectNotFoundException {
+	default SearchResult<O> get() throws ObjectNotFoundException, SchemaException, AuthenticationException, AuthorizationException, InternalServerErrorException {
 		return build().get();
 	}
 

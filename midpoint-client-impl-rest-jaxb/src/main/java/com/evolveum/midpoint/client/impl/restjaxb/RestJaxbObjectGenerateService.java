@@ -16,8 +16,8 @@
 
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.ObjectGenerateService;
 import com.evolveum.midpoint.client.api.ObjectReference;
@@ -28,6 +28,8 @@ import com.evolveum.midpoint.client.api.exception.AuthorizationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+
+import java.util.List;
 
 /**
  * @author jakmor
@@ -54,6 +56,8 @@ public class RestJaxbObjectGenerateService<O extends ObjectType> extends Abstrac
 
         switch (response.getStatus()) {
             case 200:
+            case 240:
+            case 250:
                 RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), oid);
                 return new RestJaxbCompletedFuture<>(ref);
             default:

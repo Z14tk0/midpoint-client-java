@@ -154,9 +154,9 @@ public class TestEducation extends AbstractTest {
         executeCredentialResetRequest.setUserEntry("secret");
 
         // WHEN
-        try{
+        try {
             service.users().oid("1bae776f-4939-4071-92e2-8efd5bd57799").credential().executeResetPassword(executeCredentialResetRequest).post();
-        }catch(ObjectNotFoundException e){
+        } catch (ObjectNotFoundException e){
             fail("Cannot delete user, user not found");
         }
     }

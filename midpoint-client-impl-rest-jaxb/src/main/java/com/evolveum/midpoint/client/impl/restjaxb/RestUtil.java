@@ -26,7 +26,7 @@ import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 import java.net.URI;
 import java.util.List;
@@ -69,7 +69,9 @@ public class RestUtil {
 		itemPathType.setValue(path);
 		itemDeltaType.setPath(itemPathType);
 
-		itemDeltaType.getValue().add(value);
+		if (value != null) {
+            itemDeltaType.getValue().add(value);
+        }
 
 		return itemDeltaType;
 	}
@@ -101,14 +103,16 @@ public class RestUtil {
 		return policyItemsDefinitionType;
 	}
 
-	private static ObjectReferenceType buildValuePolicyRef(String policyOid)
-	{
-		ObjectReferenceType objectReferenceType = new ObjectReferenceType();
-		objectReferenceType.setOid(policyOid);
-		QName qname = new QName(SchemaConstants.NS_COMMON, "ValuePolicyType");
-		objectReferenceType.setType(qname);
-		return objectReferenceType;
+    private static ObjectReferenceType buildValuePolicyRef(String policyOid) {
+		return createObjectReference(policyOid, Types.VALUE_POLICIES);
 	}
+
+    public static ObjectReferenceType createObjectReference(String targetOid, Types type) {
+        ObjectReferenceType objectReferenceType = new ObjectReferenceType();
+        objectReferenceType.setOid(targetOid);
+        objectReferenceType.setType(type.getTypeQName());
+        return objectReferenceType;
+    }
 
 	public static String getFailedValidationMessage(OperationResultType operationResultType){
 

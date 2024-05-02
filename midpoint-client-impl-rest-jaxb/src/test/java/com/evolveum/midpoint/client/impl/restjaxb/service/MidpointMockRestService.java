@@ -22,23 +22,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.UriInfo;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -82,6 +82,10 @@ public class MidpointMockRestService {
 	private ValuePolicyType systemValuePolicy;
 	private RestJaxbServiceUtil util;
 	private JAXBContext jaxbCtx;
+
+    private List<String> lastIncludes;
+    private List<String> lastExcludes;
+    private List<String> lastOptions;
 
 	public MidpointMockRestService(JAXBContext jaxbCtx) {
 		this.jaxbCtx = jaxbCtx;
@@ -139,7 +143,7 @@ public class MidpointMockRestService {
 
 	private StringLimitType createStringLimitType(String allowedChars, Boolean mustBeFirst, Integer minOccurs, Integer maxOccurs){
 		StringLimitType stringLimitType = new StringLimitType();
-		CharacterClassType characterClasss = new CharacterClassType();
+        CharacterClassOrRefType characterClasss = new CharacterClassOrRefType();
 		characterClasss.setValue(allowedChars);
 		stringLimitType.setCharacterClass(characterClasss);
 		stringLimitType.setMustBeFirst(mustBeFirst);
@@ -154,8 +158,8 @@ public class MidpointMockRestService {
 	public <O extends ObjectType> Response addObject(@PathParam("type") String type, O object,
 			@QueryParam("options") List<String> options,
 			@Context UriInfo uriInfo, @Context MessageContext mc) {
-
-		String oid = object.getOid();
+        captureOptions(options);
+        String oid = object.getOid();
 		if (object.getOid() == null) {
 			oid = RandomStringUtils.random(5);
 			object.setOid(oid);
@@ -178,7 +182,7 @@ public class MidpointMockRestService {
 			@QueryParam("include") List<String> include,
 			@QueryParam("exclude") List<String> exclude,
 			@Context MessageContext mc){
-
+        captureOptions(options, include, exclude);
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Get object");
 		T objectType = (T) objectMap.get(type).get(id);
@@ -202,8 +206,8 @@ public class MidpointMockRestService {
 	                                                 @QueryParam("include") List<String> include,
 	                                                 @QueryParam("exclude") List<String> exclude,
 	                                                 @Context MessageContext mc){
-
-		OperationResultType result = new OperationResultType();
+        captureOptions(options, include, exclude);
+        OperationResultType result = new OperationResultType();
 		result.setOperation("Policy generate");
 
 		String policyOid = object.getPolicyItemDefinition().get(0).getValuePolicyRef().getOid();
@@ -350,8 +354,8 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 	                                                      @QueryParam("include") List<String> include,
 	                                                      @QueryParam("exclude") List<String> exclude,
 	                                                      @Context MessageContext mc) throws Exception {
-
-		OperationResultType result = new OperationResultType();
+        captureOptions(options, include, exclude);
+        OperationResultType result = new OperationResultType();
 		result.setOperation("Modify generate object");
 		UserType user = (UserType) objectMap.get(type).get(id);
 
@@ -395,8 +399,8 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 	                                                        ObjectModificationType object,
 	                                                        @QueryParam("options") List<String> options,
 	                                                        @Context UriInfo uriInfo, @Context MessageContext mc) throws Exception {
-
-		//TODO: Should we make this generic or does this satisfy our needs for the test case?
+        captureOptions(options);
+        //TODO: Should we make this generic or does this satisfy our needs for the test case?
 
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Modify object");
@@ -436,8 +440,8 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
                                                         @QueryParam("include") List<String> include,
                                                         @QueryParam("exclude") List<String> exclude,
                                                         @Context MessageContext mc){
-
-		OperationResultType result = new OperationResultType();
+        captureOptions(options, include, exclude);
+        OperationResultType result = new OperationResultType();
 		result.setOperation("Delete object");
 
         if (!objectMap.get(type).containsKey(id)) {
@@ -460,7 +464,8 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			@QueryParam("include") List<String> include,
 			@QueryParam("exclude") List<String> exclude,
 			@Context MessageContext mc){
-		OperationResultType result = new OperationResultType();
+        captureOptions(options, include, exclude);
+        OperationResultType result = new OperationResultType();
 		result.setOperation("Search objects");
 
 		ObjectListType resultList = new ObjectListType();
@@ -554,4 +559,27 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			throw new IllegalStateException(e);
 		}
 	}
+
+
+    void captureOptions(List<String> options) {
+        captureOptions(options, null, null);
+    }
+
+    void captureOptions(List<String> options, List<String> include, List<String> exclude) {
+        lastOptions = options;
+        lastIncludes = include;
+        lastExcludes = exclude;
+    }
+
+    public List<String> getLastExcludes() {
+        return lastExcludes;
+    }
+
+    public List<String> getLastIncludes() {
+        return lastIncludes;
+    }
+
+    public List<String> getLastOptions() {
+        return lastOptions;
+    }
 }

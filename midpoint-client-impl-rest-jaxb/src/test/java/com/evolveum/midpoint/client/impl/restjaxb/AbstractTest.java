@@ -11,10 +11,10 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.transport.local.LocalConduit;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -27,6 +27,8 @@ public class AbstractTest {
 
     private RestJaxbServiceUtil util;
     private Unmarshaller unmarshaller;
+
+    private MidpointMockRestService mockRestService;
 
     public Service getService(String username, String password, String endpoint) throws IOException {
         RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder().password(password);
@@ -62,14 +64,18 @@ public class AbstractTest {
 
         JAXBContext jaxbCtx = createJaxbContext();
         sf.setProviders(Arrays.asList(new JaxbXmlProvider<>(jaxbCtx), new AuthenticationProvider()));
-
+        mockRestService = new MidpointMockRestService(jaxbCtx);
         sf.setResourceProvider(MidpointMockRestService.class,
-                new SingletonResourceProvider(new MidpointMockRestService(jaxbCtx), true));
+                new SingletonResourceProvider(mockRestService, true));
         sf.setAddress(endpoint);
 
 
         Server server = sf.create();
         return server;
+    }
+
+    public MidpointMockRestService getMockRestService() {
+        return mockRestService;
     }
 
     public <T> T unmarshallFromFile(Class<T> type, File file) throws IOException, JAXBException {
@@ -103,7 +109,6 @@ public class AbstractTest {
                     + "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
                     + "com.evolveum.midpoint.xml.ns._public.report.extension_3:"
                     + "com.evolveum.midpoint.xml.ns._public.resource.capabilities_3:"
-                    + "com.evolveum.midpoint.xml.ns._public.task.extension_3:"
                     + "com.evolveum.midpoint.xml.ns._public.task.jdbc_ping.handler_3:"
                     + "com.evolveum.midpoint.xml.ns._public.task.noop.handler_3:"
                     + "com.evolveum.prism.xml.ns._public.annotation_3:"

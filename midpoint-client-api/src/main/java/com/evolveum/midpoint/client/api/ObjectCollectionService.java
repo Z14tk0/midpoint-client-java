@@ -30,7 +30,6 @@ public interface ObjectCollectionService<O extends ObjectType> {
 	// TODO: get() as search().get()? or vice versa?
 
 	ObjectAddService<O> add(O object);
-
 	// TODO
 
 }

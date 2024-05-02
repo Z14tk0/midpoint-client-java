@@ -15,8 +15,8 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.PolicyItemsDefinitionBuilder;
 import com.evolveum.midpoint.client.api.TaskFuture;
@@ -24,6 +24,8 @@ import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
 import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
+
+import java.util.List;
 
 /**
  *
@@ -34,7 +36,6 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 
 	private RestJaxbService service;
 	private PolicyItemsDefinitionType policyItemDefinition;
-
 	private String path;
 
 
@@ -49,13 +50,15 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 		this.policyItemDefinition = policyItemDefinition;
 	}
 
-	@Override
+    @Override
 	public TaskFuture<PolicyItemsDefinitionType> apost() throws CommonException {
 
 		Response response = service.post(path, policyItemDefinition);
 
 		switch (response.getStatus()) {
         case 200:
+        case 240:
+        case 250:
             PolicyItemsDefinitionType itemsDefinitionType = response.readEntity(PolicyItemsDefinitionType.class);
             return new RestJaxbCompletedFuture<>(itemsDefinitionType);
 		case 409:

@@ -16,19 +16,17 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.Response;
+import com.evolveum.midpoint.client.api.*;
 
-import com.evolveum.midpoint.client.api.ObjectModifyService;
-import com.evolveum.midpoint.client.api.ObjectReference;
-import com.evolveum.midpoint.client.api.TaskFuture;
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.AuthorizationException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
-import com.evolveum.midpoint.client.api.exception.PartialErrorException;
+import com.evolveum.midpoint.client.api.exception.*;
+
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.Response;
+
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
@@ -40,8 +38,15 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
 
     private List<ItemDeltaType> modifications;
 
-    public RestJaxbObjectModifyService(RestJaxbService service, Class<O> type, String oid)
-    {
+    private ExecuteOptionsBuilder.WithPost<ObjectReference<O>> options = new ExecuteOptionsBuilder.WithPost<ObjectReference<O>>() {
+
+        @Override
+        public TaskFuture<ObjectReference<O>> apost() throws CommonException {
+            return RestJaxbObjectModifyService.this.apost();
+        }
+    };
+
+    public RestJaxbObjectModifyService(RestJaxbService service, Class<O> type, String oid) {
         super(service, type, oid);
         modifications = new ArrayList<>();
     }
@@ -95,11 +100,17 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
     @Override
     public TaskFuture<ObjectReference<O>> apost() throws ObjectNotFoundException {
 
-        String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid());
-        Response response = getService().post(restPath, RestUtil.buildModifyObject(modifications), null); //TODO params
+        Map<String, List<String>> queryParams = null;
+        var stringOptions = options.optionsAsStringList();
+        if (!stringOptions.isEmpty()) {
+            queryParams = Map.of("options", stringOptions);
+        }
 
+        String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid());
+        Response response = getService().post(restPath, RestUtil.buildModifyObject(modifications), queryParams);
         switch (response.getStatus()) {
             case 204:
+            case 240: // handled error
                 RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), getOid());
                 return new RestJaxbCompletedFuture<>(ref);
             case 250:
@@ -107,7 +118,10 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
             default:
                 throw new UnsupportedOperationException("Implement other status codes, unsupported return status: " + response.getStatus());
         }
+    }
 
-
+    @Override
+    public ExecuteOptionSupport.WithPost<ObjectReference<O>> options() {
+        return options;
     }
 }

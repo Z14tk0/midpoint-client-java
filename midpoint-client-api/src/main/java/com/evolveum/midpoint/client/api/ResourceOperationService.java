@@ -18,4 +18,5 @@ package com.evolveum.midpoint.client.api;
 import com.evolveum.midpoint.client.api.verb.Post;
 
 public interface ResourceOperationService<T> extends Post<T> {
+
 }

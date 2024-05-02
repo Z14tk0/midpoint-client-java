@@ -33,6 +33,10 @@ public interface Service {
 
 	ObjectCollectionService<ValuePolicyType> valuePolicies();
 
+	ObjectCollectionService<ArchetypeType> archetypes();
+
+	ObjectCollectionService<LookupTableType> lookupTables();
+
 	UserType self();
 
 	Service impersonate(String oid);
@@ -51,7 +55,13 @@ public interface Service {
 
 	ObjectCollectionService<ObjectTemplateType> objectTemplates();
 
-	ObjectCollectionService<SystemConfigurationType> systemConfigurations();
+	ObjectCollectionService<ObjectCollectionType> objectCollections();
+
+    ObjectCollectionService<SequenceType> sequences();
+
+    ObjectCollectionService<SystemConfigurationType> systemConfigurations();
+
+	ObjectCollectionService<FormType> forms();
 
 	TaskCollectionService tasks();
 
@@ -64,4 +74,6 @@ public interface Service {
 	ServiceUtil util();
 
 	ScriptingUtil scriptingUtil();
+
+	void close();
 }

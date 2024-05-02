@@ -27,7 +27,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ResourceType;
 import jdk.dynalink.Operation;
 import org.apache.cxf.jaxrs.client.WebClient;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /**
  * @author Viliam Repan (lazyman)

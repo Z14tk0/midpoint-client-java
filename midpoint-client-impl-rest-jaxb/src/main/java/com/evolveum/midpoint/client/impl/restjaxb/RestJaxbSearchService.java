@@ -15,16 +15,17 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import com.evolveum.midpoint.client.api.*;
 
-import com.evolveum.midpoint.client.api.SearchResult;
-import com.evolveum.midpoint.client.api.SearchService;
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.AuthorizationException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.*;
+
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+
 import com.evolveum.midpoint.client.api.query.FilterEntryOrEmpty;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
@@ -38,6 +39,12 @@ import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectTypeWebResource<O> implements SearchService<O> {
 
 	private QueryType query;
+    private GetOptionsBuilder.WithGet<SearchResult<O>> options = new GetOptionsBuilder.WithGet<SearchResult<O>>() {
+        @Override
+        public SearchResult<O> get() throws ObjectNotFoundException, SchemaException, AuthenticationException, AuthorizationException, InternalServerErrorException {
+            return RestJaxbSearchService.this.get();
+        }
+    };
 
 	public RestJaxbSearchService(final RestJaxbService service, final Class<O> type) {
 		this(service, type, null);
@@ -49,22 +56,49 @@ public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectT
 	}
 
 		@Override
-	public SearchResult<O> get() throws ObjectNotFoundException {
-		String path = "/" + Types.findType(getType()).getRestPath() + "/search";
-		Response response = getService().post(path, query, null); // TODO params
-
-		if (Status.OK.getStatusCode() == response.getStatus()) {
-			return new JaxbSearchResult<>(getSearchResultList(response));
-		}
-
-		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-			throw new ObjectNotFoundException("Cannot search objects. No such service");
-		}
-		return null;
-
+	public SearchResult<O> get(List<String> options) throws ObjectNotFoundException {
+        if (options != null) {
+            for (var opt : options) {
+                options().option(GetOption.from(opt));
+            }
+        }
+	    return get(null);
 	}
 
-	@Override
+    @Override
+    public SearchResult<O> get() throws ObjectNotFoundException {
+        String path = "/" + Types.findType(getType()).getRestPath() + "/search";
+        Map<String, List<String>> queryParams = new HashMap<>();
+
+        var stringOptions = options.optionsAsStringList();
+
+        if (!stringOptions.isEmpty()) {
+            queryParams.put("options", stringOptions);
+        }
+        if (!options.getInclude().isEmpty()) {
+            queryParams.put("include", options.getInclude());
+        }
+        if (!options.getExclude().isEmpty()) {
+            queryParams.put("exclude", options.getExclude());
+        }
+        Response response = getService().post(path, query, queryParams);
+
+        if (Status.OK.getStatusCode() == response.getStatus()) {
+            return new JaxbSearchResult<>(getSearchResultList(response));
+        }
+
+        if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
+            throw new ObjectNotFoundException("Cannot search objects. No such service");
+        }
+        return null;
+    }
+
+    @Override
+    public GetOptionSupport.WithGet<SearchResult<O>> options() {
+        return options;
+    }
+
+    @Override
 	public FilterEntryOrEmpty<O> queryFor(Class<O> type) {
 		return new FilterBuilder<O>(getService(), getType());
 	}

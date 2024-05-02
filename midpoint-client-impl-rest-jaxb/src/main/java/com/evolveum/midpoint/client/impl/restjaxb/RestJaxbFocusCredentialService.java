@@ -23,7 +23,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /**
  *
@@ -57,6 +57,8 @@ public class RestJaxbFocusCredentialService<O extends ObjectType>  extends Abstr
 
         switch (response.getStatus()) {
             case 200:
+            case 240:
+            case 250:
                 ExecuteCredentialResetResponseType executeCredentialResetResponse = response.readEntity(ExecuteCredentialResetResponseType.class);
                 return new RestJaxbCompletedFuture<>(executeCredentialResetResponse);
             case 409:

@@ -15,8 +15,7 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.client.api.verb.Delete;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
@@ -29,10 +28,43 @@ import java.util.List;
  */
 public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> {
 
-	O get(List<String> options) throws ObjectNotFoundException;
-
-	O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException;
-
 	ObjectModifyService<O> modify() throws ObjectNotFoundException;
 
+    ObjectReadService<O> read();
+
+    ObjectRemoveService<O> remove();
+
+    ObjectReplaceService<O> replace(O object);
+
+    /**
+     * Gets object.
+     *
+     *  Use {@link #read()} which allows you to specify get options in type safe way
+     *
+     * @return Object
+     * @throws ObjectNotFoundException If object is not found
+     */
+    @Override
+    O get() throws ObjectNotFoundException, SchemaException;
+
+    /**
+     * Gets object.
+     *
+     * @deprecated Use {@link #read()} which allows you to specify get options in type safe way
+     * @return Object
+     * @throws ObjectNotFoundException If object is not found
+     */
+    @Deprecated
+    O get(List<String> options) throws ObjectNotFoundException, SchemaException;
+
+    /**
+     * Gets object.
+     *
+     * @deprecated Use {@link #read()} which allows you to specify get options in type safe way
+     * @return Object
+     * @throws ObjectNotFoundException If object is not found
+     */
+    @Deprecated
+    O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException, SchemaException;
+;
 }
