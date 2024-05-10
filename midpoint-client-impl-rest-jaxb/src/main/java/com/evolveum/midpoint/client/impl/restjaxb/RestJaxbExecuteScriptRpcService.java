@@ -32,7 +32,6 @@ import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
-import javax.ws.rs.core.Response;
 import java.util.*;
 
 /**
