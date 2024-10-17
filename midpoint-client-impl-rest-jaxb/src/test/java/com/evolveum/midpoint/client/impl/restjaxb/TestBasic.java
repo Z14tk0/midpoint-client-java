@@ -17,9 +17,7 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 
 import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
-import com.evolveum.midpoint.client.api.exception.PolicyViolationException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.prism.xml.ns._public.query_3.PagingType;
@@ -34,7 +32,6 @@ import org.testng.annotations.Test;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -337,6 +334,91 @@ public class TestBasic extends AbstractTest {
         }
 
         assertEquals(service.util().getOrig(loggedInUser.getName()), ADMIN);
+    }
+
+    @Test
+    public void test013ImpersonateWith_OID1_Self() throws Exception {
+        Service service = getService();
+        final String IMPERSONATE_OID1 = "44af349b-5a0c-4f3a-9fe9-2f64d9390ed3";
+        final String IMPERSONATE_OID2 = "876";
+
+        UserType loggedInUser = null;
+
+        try {
+            loggedInUser = service.impersonate(IMPERSONATE_OID2).impersonate(IMPERSONATE_OID1).self();
+
+        } catch (AuthenticationException ex) {
+            fail("should authenticate user successfully");
+        }
+
+        assertEquals(service.util().getOrig(loggedInUser.getName()), "impersonate");
+    }
+
+    @Test
+    public void test013ImpersonateWith_OID2_Self() throws Exception {
+        Service service = getService();
+        final String IMPERSONATE_OID1 = "44af349b-5a0c-4f3a-9fe9-2f64d9390ed3";
+        final String IMPERSONATE_OID2 = "876";
+
+        UserType loggedInUser = null;
+
+        try {
+            loggedInUser = service.impersonate(IMPERSONATE_OID1).impersonate(IMPERSONATE_OID2).self();
+
+        } catch (AuthenticationException ex) {
+            fail("should authenticate user successfully");
+        }
+
+        assertEquals(service.util().getOrig(loggedInUser.getName()), "jack");
+    }
+
+    @Test
+    public void test013HeaderSetupSelf() throws Exception {
+        Service service = getService();
+        final String IMPERSONATE_OID1 = "44af349b-5a0c-4f3a-9fe9-2f64d9390ed3";
+        final String IMPERSONATE_OID2 = "876";
+        final String IMPERSONATE_OID3 = "unknown";
+
+        UserType loggedInUser = null;
+
+        try {
+            loggedInUser = service
+                    .addHeader("Switch-To-Principal", IMPERSONATE_OID1)
+                    .addHeader("Switch-To-Principal", IMPERSONATE_OID2)
+                    .addHeader("Switch-To-Principal", IMPERSONATE_OID3)
+                    .removeHeader("Switch-To-Principal")
+                    .self();
+
+        } catch (AuthenticationException ex) {
+            fail("should authenticate user successfully");
+        }
+
+        assertEquals(service.util().getOrig(loggedInUser.getName()), ADMIN);
+    }
+
+    @Test
+    public void test013ImpersonateWith_Admin_Self() throws Exception {
+        Service service = getService();
+        final String IMPERSONATE_OID1 = "876";
+        final String IMPERSONATE_OID2 = "44af349b-5a0c-4f3a-9fe9-2f64d9390ed3";
+
+        UserType loggedInUser = null;
+
+        try {
+            loggedInUser = service.impersonate(IMPERSONATE_OID1).impersonate(IMPERSONATE_OID2).removeImpersonate().self();
+
+        } catch (AuthenticationException ex) {
+            fail("should authenticate user successfully");
+        }
+
+        assertEquals(service.util().getOrig(loggedInUser.getName()), ADMIN);
+    }
+
+    @Test(expectedExceptions = AuthenticationException.class)
+    public void test016ImpersonateSelfWithUnknownOIDMustFail() throws Exception {
+        Service service = getService();
+        final String IMPERSONATE_OID = "unknown";
+        service.impersonate(IMPERSONATE_OID).self();
     }
 
     @Test

@@ -15,7 +15,6 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
 
@@ -41,7 +40,11 @@ public interface Service {
 
 	Service impersonate(String oid);
 
+    Service removeImpersonate();
+
 	Service addHeader(String header, String value);
+
+    Service removeHeader(String header);
 
 	ObjectCollectionService<SecurityPolicyType> securityPolicies();
 
