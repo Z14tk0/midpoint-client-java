@@ -268,7 +268,17 @@ public class RestPrismService implements Service {
     }
 
     @Override
+    public Service removeImpersonate() {
+        return null;
+    }
+
+    @Override
     public Service addHeader(String header, String value) {
+        return null;
+    }
+
+    @Override
+    public Service removeHeader(String header) {
         return null;
     }
 

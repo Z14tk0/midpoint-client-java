@@ -52,7 +52,7 @@ public class RestJaxbService implements Service {
     private final ServiceUtil util;
     private final ScriptingUtil scriptingUtil;
 
-    private WebClient client;
+    private final WebClient client;
     private DomSerializer domSerializer;
     private JAXBContext jaxbContext;
     private AuthenticationManager<?> authenticationManager;
@@ -121,15 +121,40 @@ public class RestJaxbService implements Service {
 
     }
 
+    /**
+     * Add Switch-To-Principal HTTP header with only one value.
+     * If this method is executed multiple times than latest oid value will be used.
+     * @return this Service instance
+     */
     @Override
     public Service impersonate(String oid) {
-        client.header(IMPERSONATE_HEADER, oid);
+        client.replaceHeader(IMPERSONATE_HEADER, oid);
+        return this;
+    }
+
+    /**
+     * Remove Switch-To-Principal HTTP header.
+     * @return this Service instance
+     */
+    @Override
+    public Service removeImpersonate() {
+        client.replaceHeader(IMPERSONATE_HEADER, null);
         return this;
     }
 
     @Override
     public Service addHeader(String header, String value) {
         client.header(header, value);
+        return this;
+    }
+
+    /**
+     * Remove any HTTP header.
+     * @return this Service instance
+     */
+    @Override
+    public Service removeHeader(String header) {
+        client.replaceHeader(header, null);
         return this;
     }
 

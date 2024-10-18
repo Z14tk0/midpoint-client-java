@@ -495,12 +495,15 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 		UserType userType;
 
 		if(null != impersonateOid){
-			userType = (UserType) userMap.get(impersonateOid);
-		}else
-		{
+            userType = userMap.get(impersonateOid);
+            if (userType == null) {
+                return RestMockServiceUtil.createResponse(Status.UNAUTHORIZED, result);
+            }
+		} else {
 			userType = new UserType();
 			userType.setName(util.createPoly("administrator"));
 		}
+
 		return RestMockServiceUtil.createResponse(Status.OK, userType, result);
 	}
 
