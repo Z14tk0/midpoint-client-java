@@ -18,11 +18,12 @@ package com.evolveum.midpoint.client.api;
 import java.util.List;
 
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 /**
  * @author semancik
  *
  */
 public interface SearchResult<O extends ObjectType> extends List<O> {
-
+    MultivaluedMap<String, Object> getHeaders();
 }

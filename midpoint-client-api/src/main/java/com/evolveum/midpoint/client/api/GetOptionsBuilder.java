@@ -23,6 +23,7 @@ public class GetOptionsBuilder<F extends GetOptionSupport<F>> implements GetOpti
     List<GetOption> options = new ArrayList<>();
     List<String> include = new ArrayList<>();
     List<String> exclude = new ArrayList<>();
+    Boolean returnTotalCount = false;
 
     @Override
     public F include(String path) {
@@ -51,6 +52,12 @@ public class GetOptionsBuilder<F extends GetOptionSupport<F>> implements GetOpti
         return self();
     }
 
+    @Override
+    public F returnTotalCount(Boolean returnTotalCount) {
+        this.returnTotalCount = returnTotalCount;
+        return self();
+    }
+
     public List<String> getExclude() {
         return exclude;
     }
@@ -58,6 +65,8 @@ public class GetOptionsBuilder<F extends GetOptionSupport<F>> implements GetOpti
     public List<String> getInclude() {
         return include;
     }
+
+    public Boolean getReturnTotalCount() { return returnTotalCount; }
 
     public List<String> optionsAsStringList() {
         List<String> ret = new ArrayList<>(options.size());
@@ -74,4 +83,5 @@ public class GetOptionsBuilder<F extends GetOptionSupport<F>> implements GetOpti
     public abstract static class WithPost<O> extends GetOptionsBuilder<GetOptionSupport.WithPost<O>> implements GetOptionSupport.WithPost<O> {
 
     }
+
 }

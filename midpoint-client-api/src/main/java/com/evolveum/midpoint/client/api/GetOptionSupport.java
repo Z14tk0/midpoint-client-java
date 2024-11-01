@@ -48,6 +48,8 @@ public interface GetOptionSupport<S extends GetOptionSupport<S>> {
 
     S exclude(String path);
 
+    S returnTotalCount(Boolean returnTotalCount);
+
     default S distinct() {
         option(GetOption.DISTINCT);
         return self();
