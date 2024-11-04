@@ -15,14 +15,8 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import java.util.List;
+import jakarta.ws.rs.core.MultivaluedMap;
 
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-
-/**
- * @author semancik
- *
- */
-public interface SearchResult<O extends ObjectType> extends List<O>, SearchResultMetadata {
-
+public interface SearchResultMetadata {
+    MultivaluedMap<String, Object> getHeaders();
 }
