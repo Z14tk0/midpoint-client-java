@@ -423,6 +423,24 @@ public class TestIntegrationBasic extends AbstractTest {
         assertNotNull(responseHeaders);
     }
 
+    /**
+     * Currently this test will pass with only with midpoint branch Z14tk0:feature/rest-search-total-count-header (currently found in this PR https://github.com/Evolveum/midpoint/pull/232)
+     */
+    @Test
+    public void test620UserSearchWithTotalCount() throws Exception {
+        SearchResult<UserType> searchResult = service.users().search().queryFor(UserType.class).build()
+                .options()
+                .returnTotalCount()
+                .get();
+
+        MultivaluedMap<String, Object> headers = searchResult.getHeaders();
+        assertNotNull(headers);
+        assertTrue(headers.containsKey("X-Total-Count"));
+
+        String totalCountHeader = headers.getFirst("X-Total-Count").toString();
+        assertNotNull(totalCountHeader);
+    }
+
     @Test
     public void test700addSecurityPolicy() throws Exception {
         SecurityPolicyType securityPolicyType = unmarshallFromFile(SecurityPolicyType.class, SECURITY_POLICY_FILE);

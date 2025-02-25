@@ -15,6 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,9 @@ public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectT
         }
         if (!options.getExclude().isEmpty()) {
             queryParams.put("exclude", options.getExclude());
+        }
+        if (options.getReturnTotalCount()) {
+            queryParams.put("returnTotalCount", Collections.singletonList(Boolean.toString(options.getReturnTotalCount())));
         }
         Response response = getService().post(path, query, queryParams);
 
