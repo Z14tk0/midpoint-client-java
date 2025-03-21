@@ -15,7 +15,9 @@
  */
 package com.evolveum.midpoint.client.impl.prism;
 
-import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import org.testng.Assert;
 import org.testng.AssertJUnit;
@@ -27,19 +29,32 @@ import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.schema.result.OperationResult;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+import com.evolveum.prism.xml.ns._public.types_3.PolyStringType;
 
 public class TestRestPrismService {
 
+    private static final String DATA_DIR = "src/test/resources/request";
 
     private Service service;
+    private String testUserOid;
+
 
     @BeforeClass
     public void init() throws Exception {
         service = createClient();
+
+        //Create a user to later use in tests, optionally set other fields...
+        UserType testUser = new UserType();
+        testUser.setName(new PolyStringType("testUser"));
+        ObjectReference<UserType> ref = service.users().add(testUser).post();
+        Assert.assertNotNull(ref.getOid(), "User OID must not be null after creation.");
+        testUserOid = ref.getOid();
     }
 
     @AfterClass
-    public void shutdown() {
+    public void shutdown() throws ObjectNotFoundException {
+        service.users().oid(testUserOid).delete();
         service.close();
     }
 
@@ -51,7 +66,6 @@ public class TestRestPrismService {
         System.out.println("User : " + user.getName());
 
         AssertJUnit.assertEquals("administrator", user.getName().getOrig());
-
     }
 
     @Test
@@ -100,6 +114,29 @@ public class TestRestPrismService {
         }
 
     }
+
+    /**
+     * Calls the modify service using setModifications(InputStream)
+     * and verifies that the returned OID matches the test user’s OID. (HTTP PATCH)
+     * Org in filter can be found here in overlay example project https://github.com/Evolveum/midpoint-overlay-example/blob/master/src/main/resources/initial-objects/920-org-root.xml
+     */
+    @Test
+    public void test030ModifyUser() throws Exception {
+        File file = new File(DATA_DIR, "user-patch-delta.json");
+
+        try (InputStream inputStream = new FileInputStream(file)) {
+            // Call the modify service using setModifications(inputStream) and then post the changes.
+            ObjectReference<UserType> userRef = service.users().oid(testUserOid)
+                    .modify()
+                    .setModifications(inputStream)
+                    .post();
+
+            AssertJUnit.assertNotNull(userRef.getOid());
+            Assert.assertEquals(userRef.getOid(), testUserOid, "Modified OID should match the test user's OID.");
+        }
+    }
+
+
 
     @Test
     public void test100testResource() throws Exception {
