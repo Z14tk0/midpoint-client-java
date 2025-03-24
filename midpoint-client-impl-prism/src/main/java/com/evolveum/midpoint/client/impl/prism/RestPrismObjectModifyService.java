@@ -34,13 +34,10 @@ import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
 /**
  * @author Z14tk0
  */
-public class RestPrismObjectModifyService<O extends ObjectType> implements ObjectModifyService<O> {
+public class RestPrismObjectModifyService<O extends ObjectType> extends AbstractObjectWebResource<O> implements ObjectModifyService<O> {
 
     private List<ItemDeltaType> modifications;
-    private final RestPrismService service;
-    private final ObjectTypes type;
     private List<String> options;
-    private String oid;
 
     @Override
     public ExecuteOptionSupport.WithPost<ObjectReference<O>> options() {
@@ -54,9 +51,7 @@ public class RestPrismObjectModifyService<O extends ObjectType> implements Objec
     }
 
     public RestPrismObjectModifyService(RestPrismService service, ObjectTypes type, String oid) {
-        this.service = service;
-        this.type = type;
-        this.oid = oid;
+        super(service, type.getClassDefinition(), oid);
         this.modifications = new ArrayList<>();
     }
 
@@ -103,7 +98,7 @@ public class RestPrismObjectModifyService<O extends ObjectType> implements Objec
 
     @Override
     public RestPrismObjectModifyService<O> setModifications(InputStream inputStream) throws SchemaException {
-        this.modifications.addAll(((ObjectModificationType) service.parseObjectModification(inputStream)).getItemDelta());
+        this.modifications.addAll(((ObjectModificationType) ((RestPrismService) getService()).parseObjectModification(inputStream)).getItemDelta());
         return this;
     }
 
@@ -119,9 +114,9 @@ public class RestPrismObjectModifyService<O extends ObjectType> implements Objec
     @Override
     public TaskFuture<ObjectReference<O>> apost() throws SchemaException, ObjectAlreadyExistsException, ObjectNotFoundException {
 
-        String oidRes = service.modifyObject(type, RestPrismUtils.buildModifyObject(modifications), options, oid);
+        String oidRes = ((RestPrismService) getService()).modifyObject(ObjectTypes.getObjectType(getType()), RestPrismUtils.buildModifyObject(modifications), options, getOid());
 
-        RestPrismObjectReference<O> ref = new RestPrismObjectReference<>(oidRes, type.getClassDefinition());
+        RestPrismObjectReference<O> ref = new RestPrismObjectReference<>((RestPrismService) getService(), oidRes, getType());
         return new RestPrismCompletedFuture<>(ref);
     }
 

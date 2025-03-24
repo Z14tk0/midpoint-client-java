@@ -18,8 +18,9 @@ package com.evolveum.midpoint.client.impl.prism;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -32,13 +33,14 @@ import com.evolveum.midpoint.schema.result.OperationResult;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.prism.xml.ns._public.types_3.PolyStringType;
 
+import static org.testng.AssertJUnit.*;
+
 public class TestRestPrismService {
 
     private static final String DATA_DIR = "src/test/resources/request";
 
     private Service service;
     private String testUserOid;
-
 
     @BeforeClass
     public void init() throws Exception {
@@ -48,7 +50,7 @@ public class TestRestPrismService {
         UserType testUser = new UserType();
         testUser.setName(new PolyStringType("testUser"));
         ObjectReference<UserType> ref = service.users().add(testUser).post();
-        Assert.assertNotNull(ref.getOid(), "User OID must not be null after creation.");
+        assertNotNull(ref.getOid());
         testUserOid = ref.getOid();
     }
 
@@ -118,7 +120,7 @@ public class TestRestPrismService {
     /**
      * Calls the modify service using setModifications(InputStream)
      * and verifies that the returned OID matches the test user’s OID. (HTTP PATCH)
-     * Org in filter can be found here in overlay example project https://github.com/Evolveum/midpoint-overlay-example/blob/master/src/main/resources/initial-objects/920-org-root.xml
+     * Org in filter can be found in overlay example project https://github.com/Evolveum/midpoint-overlay-example/blob/master/src/main/resources/initial-objects/920-org-root.xml
      */
     @Test
     public void test030ModifyUser() throws Exception {
@@ -131,9 +133,34 @@ public class TestRestPrismService {
                     .setModifications(inputStream)
                     .post();
 
-            AssertJUnit.assertNotNull(userRef.getOid());
-            Assert.assertEquals(userRef.getOid(), testUserOid, "Modified OID should match the test user's OID.");
+            assertNotNull(userRef.getOid());
+            assertEquals("Modified OID should match the test user's OID.", testUserOid, userRef.getOid());
         }
+    }
+
+    @Test
+    public void test031ModifyUser() throws Exception {
+        Map<String, Object> modifications = new HashMap<>();
+        modifications.put("description", "test description");
+
+        ObjectReference<UserType> ref = null;
+
+        try {
+            ref = service.users().oid(testUserOid)
+                    .modify()
+                    .replace(modifications)
+                    .add("givenName", "Charlie")
+                    .post();
+        } catch (ObjectNotFoundException e) {
+            fail("Cannot modify user, user not found");
+        }
+
+        UserType user = ref.get();
+        assertEquals("test description", user.getDescription());
+        assertEquals("Charlie", user.getGivenName().getOrig());
+        ref = service.users().oid(testUserOid).modify().delete("givenName", "Charlie").post();
+
+        assertNull(ref.get().getGivenName());
     }
 
 
